@@ -11,9 +11,13 @@ import org.xml.sax.helpers.DefaultHandler;
 public class SaxConfigParser extends DefaultHandler{
 	
 	private HashMap<String,String> peers;
+	private String[] info;
+	private String myName;
 	
-	public SaxConfigParser(HashMap<String,String> table) {
+	public SaxConfigParser(HashMap<String,String> table, String[] _info, String _myName) {
 		peers=table; //taking the hash to populate with the neighbors
+		info=_info;
+		myName=_myName;
 	}
 
     public void startDocument() throws SAXException {
@@ -28,6 +32,10 @@ public class SaxConfigParser extends DefaultHandler{
     	
     	if(localName == "allNodes") 
     		return;
+    	if(localName == myName ) {
+    		info[0]=atts.getValue(1); //path archive
+    		info[1]=atts.getValue(2); //cache dimension
+    	}
     	
     	//if name is new
     	if (peers.get(localName) == null ) {

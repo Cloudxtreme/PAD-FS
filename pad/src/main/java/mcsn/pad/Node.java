@@ -27,7 +27,8 @@ public class Node extends UnicastRemoteObject implements FS
 	 */
 	
 	private static final long serialVersionUID = 1L;
-	private HashMap<String,String> peers; 
+	private HashMap<String,String> peers;
+	private String[] storing_settings; 
 
 	public Node() throws RemoteException {}
 
@@ -36,8 +37,8 @@ public class Node extends UnicastRemoteObject implements FS
     { 
     	
     	try {
-    		/*Node node= new Node();
-    		node.StartUp("name1", "src/config.xml");*/
+    		Node node= new Node();
+    		node.StartUp("name1", "src/config.xml");
     		
     		
     		Storage store= new Storage("Archive");
@@ -93,7 +94,8 @@ public class Node extends UnicastRemoteObject implements FS
 	    SAXParser saxParser = spf.newSAXParser();
 	    XMLReader xmlReader = saxParser.getXMLReader();
 	    peers=new HashMap<String,String>();
-	    xmlReader.setContentHandler(new SaxConfigParser(peers) );
+	    storing_settings= new String[2];
+	    xmlReader.setContentHandler(new SaxConfigParser(peers,storing_settings, myId ) );
 	    xmlReader.parse(ConfigPath);	
 	    
 	}
