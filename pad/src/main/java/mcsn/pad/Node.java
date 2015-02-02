@@ -14,6 +14,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import mcsn.pad.parsing.SaxConfigParser;
+import mcsn.pad.storage.Storage;
+import mcsn.pad.storage.Value;
 
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -34,8 +36,19 @@ public class Node extends UnicastRemoteObject implements FS
     { 
     	
     	try {
-    		Node node= new Node();
-    		node.StartUp("name1", "src/config.xml");
+    		/*Node node= new Node();
+    		node.StartUp("name1", "src/config.xml");*/
+    		
+    		
+    		Storage store= new Storage("Archive");
+    		Value v= new Value();
+    		v.x=2;
+    		v.y=3;
+    		store.writeFile(555,v);
+    		v=(Value) store.readFile(555);
+    		v=(Value) store.readFile(555);
+    		System.out.println(v.x + " " + v.y);
+    		
     	} catch (Exception e ) {
     		e.printStackTrace();
     	}
