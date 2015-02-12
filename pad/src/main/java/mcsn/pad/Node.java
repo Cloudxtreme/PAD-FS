@@ -15,10 +15,10 @@ import javax.xml.parsers.SAXParserFactory;
 
 import mcsn.pad.parsing.SaxConfigParser;
 import mcsn.pad.storage.Storage;
-import mcsn.pad.storage.Value;
-
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
+
+import org.json.simple.JSONObject;
 
 public class Node extends UnicastRemoteObject implements FS 
 { 
@@ -27,28 +27,37 @@ public class Node extends UnicastRemoteObject implements FS
 	 */
 	
 	private static final long serialVersionUID = 1L;
-	private HashMap<String,String> peers;
-	private String[] storing_settings; 
+	private HashMap<String,String> peers; //table with urls of all the other peers
+	private String[] storing_settings; //my setting (my ulr, my path of archive)
 
 	public Node() throws RemoteException {}
 
 
     public static void main(String args[]) 
     { 
+    	/*ARGS NEEDED: PATH OF CONFIG.XML and MYNAME */
+    	String configFilePath;
+    	String MyName;
+    	
+    	if ( args.length < 2) {
+    		System.out.println("Parameter needed: PATH OF CONFIG.XML and MYNAME");
+    		return;
+    	}
+    	
+    	MyName=args[1];
+    	configFilePath=args[0];
     	
     	try {
     		Node node= new Node();
-    		node.StartUp("name1", "src/config.xml");
+    		node.StartUp(MyName, configFilePath);
     		
     		
-    		Storage store= new Storage("Archive");
-    		Value v= new Value();
-    		v.x=2;
-    		v.y=3;
-    		store.writeFile(555,v);
-    		v=(Value) store.readFile(555);
-    		v=(Value) store.readFile(555);
-    		System.out.println(v.x + " " + v.y);
+    		JSONObject json = new JSONObject();
+    		json.put("ciao", 3);
+    		System.out.println(json.toJSONString());
+    		
+    		//Storage store= new Storage("Archive");
+    		
     		
     	} catch (Exception e ) {
     		e.printStackTrace();
@@ -96,7 +105,10 @@ public class Node extends UnicastRemoteObject implements FS
 	    peers=new HashMap<String,String>();
 	    storing_settings= new String[2];
 	    xmlReader.setContentHandler(new SaxConfigParser(peers,storing_settings, myId ) );
-	    xmlReader.parse(ConfigPath);	
+	    xmlReader.parse(ConfigPath);
+	    
+	    //debug
+	    System.out.println(storing_settings[0] + storing_settings[1]);
 	    
 	}
 	

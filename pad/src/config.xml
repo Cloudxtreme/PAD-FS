@@ -1,3 +1,4 @@
 <allNodes>
-	<name1 url="//localhost:1999" path_archive="name1archive" cache="1024"></name1>
-	<name2 url="//localhost:2000" path_archive="name2archive" cache="2048"></name2></allNodes>
+	<name1 url="//localhost:1999" path_archive="name1archive"></name1>
+	<name2 url="//localhost:2000" path_archive="name2archive"></name2>
+</allNodes>

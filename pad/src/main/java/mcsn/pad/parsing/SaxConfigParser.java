@@ -14,10 +14,13 @@ public class SaxConfigParser extends DefaultHandler{
 	private String[] info;
 	private String myName;
 	
-	public SaxConfigParser(HashMap<String,String> table, String[] _info, String _myName) {
+	public SaxConfigParser(HashMap<String,String> table, String[] _info, String _myName) throws SAXException {
 		peers=table; //taking the hash to populate with the neighbors
 		info=_info;
 		myName=_myName;
+		if (info.length < 2) {
+				throw new SAXException("Info String Array Passed in the constructor is too small");
+		}
 	}
 
     public void startDocument() throws SAXException {
@@ -30,14 +33,21 @@ public class SaxConfigParser extends DefaultHandler{
             String qName, 
             Attributes atts) throws SAXException {
     	
+    	//root element, nothing to do
     	if(localName == "allNodes") 
     		return;
+    	
+    	//element relative to this Node, getting al the info
     	if(localName == myName ) {
-    		info[0]=atts.getValue(1); //path archive
-    		info[1]=atts.getValue(2); //cache dimension
+    		for (int i=0; i<atts.getLength(); i++) {
+    			if (atts.getLocalName(i)=="url") 
+    				info[0]=atts.getValue(i); //path archive
+    			if (atts.getLocalName(i)=="path_archive") 
+    				info[1]=atts.getValue(i); //path archive
+    		}
     	}
     	
-    	//if name is new
+    	//if name is new, add in the table of peers (storing only url)
     	if (peers.get(localName) == null ) {
     		
     		String address=atts.getValue(0);
