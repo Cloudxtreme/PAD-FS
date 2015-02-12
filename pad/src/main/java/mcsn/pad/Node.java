@@ -18,7 +18,7 @@ import mcsn.pad.storage.Storage;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import org.json.simple.JSONObject;
+
 
 public class Node extends UnicastRemoteObject implements FS 
 { 
@@ -52,11 +52,9 @@ public class Node extends UnicastRemoteObject implements FS
     		node.StartUp(MyName, configFilePath);
     		
     		
-    		JSONObject json = new JSONObject();
-    		json.put("ciao", 3);
-    		System.out.println(json.toJSONString());
     		
-    		//Storage store= new Storage("Archive");
+    		
+    		Storage store= new Storage("Archive");
     		
     		
     	} catch (Exception e ) {
