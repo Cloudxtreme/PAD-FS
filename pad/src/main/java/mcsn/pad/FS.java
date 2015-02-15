@@ -5,6 +5,6 @@ import java.io.*;
 		
 public interface FS extends java.rmi.Remote {
 			/* CLIENT API  */
-			void put(long key, Serializable value) throws RemoteException;
-			Serializable get(long key) throws RemoteException;
+			void put(String key, Serializable value) throws RemoteException;
+			Serializable[] get(String key) throws RemoteException;
 }

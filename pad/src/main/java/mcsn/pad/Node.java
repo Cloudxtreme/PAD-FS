@@ -3,10 +3,7 @@ package mcsn.pad;
 
 
 import java.io.*;
-import java.rmi.Naming; 
 import java.rmi.RemoteException; 
-import java.rmi.server.UnicastRemoteObject;
-import java.rmi.registry.LocateRegistry;
 import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -20,13 +17,12 @@ import org.xml.sax.XMLReader;
 
 
 
-public class Node extends UnicastRemoteObject implements FS 
-{ 
+public class Node { 
     /**
 	 * 
 	 */
 	
-	private static final long serialVersionUID = 1L;
+	
 	private HashMap<String,String> peers; //table with urls of all the other peers
 	private String[] storing_settings; //my setting (my ulr, my path of archive)
 
@@ -79,17 +75,6 @@ public class Node extends UnicastRemoteObject implements FS
     }
 
 	
-	public void put(long key, Serializable value) throws RemoteException {
-		// TODO Auto-generated method stub
-		
-		
-	}
-
-	
-	public Serializable get(long key) throws RemoteException {
-		// TODO Auto-generated method stub
-		return null;
-	} 
 	
 	/*
 	 * StartUp configuration file parsing, discover address

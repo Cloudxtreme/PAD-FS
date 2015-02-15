@@ -8,12 +8,8 @@ import java.rmi.RemoteException;
  * 
  */
 public interface Node2Node {
+	/*like client api, plus info on the vector clock*/
+	void put(String key, Serializable value, String clocks) throws RemoteException;
+	Pair<Serializable,String> get(String key) throws RemoteException;
 	
-	void put(long key, Serializable value) throws RemoteException;
-	Serializable get(long key) throws RemoteException;
-	
-	void store_replica(long key, Serializable value) throws RemoteException;
-	Serializable get_replica(long key) throws RemoteException;
-	
-	boolean heartBeat() throws RemoteException;
 }
