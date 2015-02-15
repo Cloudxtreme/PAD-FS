@@ -117,6 +117,13 @@ public class Storage {
 	return getAllFile(ARCHIVE_PATH + "/Processing/");
 	}
 	
+	public String[] findAllinStorage(String key) {
+		return getAllVersion(key, ARCHIVE_PATH + "/Storage/");
+	}
+	
+	public String[] findAllinReplica(String key) {
+		return getAllVersion(key, ARCHIVE_PATH + "/Replica/");
+	}
 	
 	
 	private String[] getAllFile(String path) {
