@@ -13,16 +13,6 @@ public class Pair<L,R> {
 	  public L getLeft() { return left; }
 	  public R getRight() { return right; }
 
-	  @Override
-	  public int hashCode() { return left.hashCode() ^ right.hashCode(); }
-
-	  @Override
-	  public boolean equals(Object o) {
-	    if (o == null) return false;
-	    if (!(o instanceof Pair)) return false;
-	    Pair<L, R> pairo = (Pair<L, R>) o;
-	    return this.left.equals(pairo.getLeft()) &&
-	           this.right.equals(pairo.getRight());
-	  }
+	
 
 	}
