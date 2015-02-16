@@ -1,4 +1,4 @@
-package mcsn.pad;
+package mcsn.pad.rmi;
 
 import java.rmi.*;
 import java.io.*;
