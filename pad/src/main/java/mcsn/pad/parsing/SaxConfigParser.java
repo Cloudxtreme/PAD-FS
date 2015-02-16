@@ -10,11 +10,12 @@ import org.xml.sax.helpers.DefaultHandler;
 
 public class SaxConfigParser extends DefaultHandler{
 	
-	private HashMap<String,String> peers;
+	private HashMap<Integer,String> peers;
 	private String[] info;
 	private String myName;
+	private int idx=0;
 	
-	public SaxConfigParser(HashMap<String,String> table, String[] _info, String _myName) throws SAXException {
+	public SaxConfigParser(HashMap<Integer,String> table, String[] _info, String _myName) throws SAXException {
 		peers=table; //taking the hash to populate with the neighbors
 		info=_info;
 		myName=_myName;
@@ -50,14 +51,16 @@ public class SaxConfigParser extends DefaultHandler{
     	//if name is new, add in the table of peers (storing only url)
     	if (peers.get(localName) == null ) {
     		
+    		//FIXME let me order independent
     		String address=atts.getValue(0);
     		if (address == null) {
     			
 					throw new SAXException("Null URl in node " + localName + " " + address );
 			}
     			
-    	peers.put(localName, address);
-    		
+    	//TODO fix me con numeri
+    	peers.put(new Integer(idx), address);
+    	idx++;
     		
     	}
     	

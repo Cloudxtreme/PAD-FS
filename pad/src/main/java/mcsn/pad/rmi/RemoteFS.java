@@ -3,22 +3,26 @@ package mcsn.pad.rmi;
 import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.util.HashMap;
 
 import mcsn.pad.storage.Storage;
 
 public class RemoteFS implements FS {
 
-	int myid; // my id
-	int n; // number of peers
-	int k; // number of replicas
-	Storage s; //local storage
-	Node2Node n2n;
-	public RemoteFS(int _myid, int _n, int _k, Storage _s, Node2Node _n2n) {
+	private int myid; // my id
+	private int n; // number of peers
+	private int k; // number of replicas
+	private Storage s; //local storage
+	private Node2Node n2n;
+	private HashMap<Integer,String> peers;
+	
+	public RemoteFS(int _myid, int _n, int _k, Storage _s, Node2Node _n2n, HashMap<Integer,String> p) {
 		n=_n;
 		k=_k;
 		myid=_myid;
 		n2n=_n2n;
 		s=_s;
+		peers=p;
 	}
 	
 	private boolean isReplica(int hash) {
@@ -30,7 +34,7 @@ public class RemoteFS implements FS {
 	}
 	
 	public void put(String key, Serializable value) throws RemoteException {
-		int hash = key.hashCode() % n;
+		/*int hash = key.hashCode() % n;
 		
 		
 		if (hash == myid) 
@@ -53,7 +57,7 @@ public class RemoteFS implements FS {
 					return;
 				
 			}
-		
+		*/
 		
 		try {
 			s.writeProcessing(key, value);
@@ -67,23 +71,7 @@ public class RemoteFS implements FS {
 	}
 
 	public Serializable[] get(String key) throws RemoteException {
-		int hash = key.hashCode() % n;
-		if (hash == myid) {
-			String[] allVersion = s.findAllinStorage(key);
-			Serializable[] output= new Serializable[allVersion.length];
-			int i=0;
-			for (String v : allVersion ) {
-				try {
-					output[i]=s.readStorage(v);
-					i++;
-				} catch (Exception e) {
-					throw new RemoteException("cannot read " + v + " into Storage");
-				} 
-			}
-			return output;
-		} else if(isReplica(hash)) {
-			
-		}
+		
 			
 		return null;
 		

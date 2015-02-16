@@ -1,18 +1,19 @@
 package mcsn.pad;
 
-public class Pair<L,R> {
+import java.io.Serializable;
 
-	  private final L left;
-	  private final R right;
+public class Pair{
 
-	  public Pair(L left, R right) {
+	  private final Serializable left;
+	  private final String right;
+
+	  public Pair(Serializable left, String right) {
 	    this.left = left;
 	    this.right = right;
 	  }
 
-	  public L getLeft() { return left; }
-	  public R getRight() { return right; }
+	  public Serializable getLeft() { return left; }
+	  public String getRight() { return right; }
 
 	
-
 	}

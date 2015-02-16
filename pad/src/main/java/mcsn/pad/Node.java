@@ -23,7 +23,7 @@ public class Node {
 	 */
 	
 	
-	private HashMap<String,String> peers; //table with urls of all the other peers
+	private HashMap<Integer,String> peers; //table with urls of all the other peers
 	private String[] storing_settings; //my setting (my ulr, my path of archive)
 
 	public Node() throws RemoteException {}
@@ -85,7 +85,7 @@ public class Node {
 	    spf.setNamespaceAware(true);
 	    SAXParser saxParser = spf.newSAXParser();
 	    XMLReader xmlReader = saxParser.getXMLReader();
-	    peers=new HashMap<String,String>();
+	    peers=new HashMap<Integer,String>();
 	    storing_settings= new String[2];
 	    xmlReader.setContentHandler(new SaxConfigParser(peers,storing_settings, myId ) );
 	    xmlReader.parse(ConfigPath);
