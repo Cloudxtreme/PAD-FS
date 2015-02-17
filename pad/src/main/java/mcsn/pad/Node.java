@@ -11,7 +11,9 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import mcsn.pad.parsing.SaxConfigParser;
+import mcsn.pad.rmi.Node2Node;
 import mcsn.pad.storage.Storage;
+
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
@@ -25,6 +27,7 @@ public class Node {
 	
 	private HashMap<Integer,String> peers; //table with urls of all the other peers
 	private String[] storing_settings; //my setting (my ulr, my path of archive)
+	private HashMap<Integer,Node2Node> cacheN2N;
 
 	public Node() throws RemoteException {}
 

@@ -34,6 +34,7 @@ public class StorageTest {
 				i--;
 		}
 		assertEquals(i,0);
+		assertTrue(s!=null);
 		s=null;
 	}
 
@@ -53,8 +54,9 @@ public class StorageTest {
 			e.printStackTrace();
 		}
 		assertTrue(f.exists());
-		if (f.exists())
-			f.delete();
+		s.deleteInStorage(name);
+		assertTrue(!f.exists());
+		
 	}
 
 	/**
@@ -73,8 +75,8 @@ public class StorageTest {
 			e.printStackTrace();
 		}
 		assertTrue(f.exists());
-		if (f.exists())
-			f.delete();
+		s.deleteInReplica(name);
+		assertTrue(!f.exists());
 	
 	}
 
@@ -94,8 +96,8 @@ public class StorageTest {
 			e.printStackTrace();
 		}
 		assertTrue(f.exists());
-		if (f.exists())
-			f.delete();
+		s.deleteInProcessing(name);
+		assertTrue(!f.exists());
 	
 	}
 
@@ -117,8 +119,9 @@ public class StorageTest {
 			e.printStackTrace();
 		}
 		assertTrue(out.equals(message));
-		if (f.exists())
-			f.delete();
+		assertTrue(f.exists());
+		s.deleteInProcessing(name);
+		assertTrue(!f.exists());
 		
 	}
 
@@ -140,8 +143,9 @@ public class StorageTest {
 			e.printStackTrace();
 		}
 		assertTrue(out.equals(message));
-		if (f.exists())
-			f.delete();
+		assertTrue(f.exists());
+		s.deleteInReplica(name);
+		assertTrue(!f.exists());
 	}
 
 	/**
@@ -162,8 +166,9 @@ public class StorageTest {
 			e.printStackTrace();
 		}
 		assertTrue(out.equals(message));
-		if (f.exists())
-			f.delete();
+		assertTrue(f.exists());
+		s.deleteInStorage(name);
+		assertTrue(!f.exists());
 	}
 
 	/**
@@ -174,7 +179,7 @@ public class StorageTest {
 		Storage s= new Storage("/tmp/junit");
 		String name= "123.12v12v45";
 		String[] out=null;
-		File f= new File("/tmp/Processing/" + name);
+		
 		String message = "Hello world";
 		try {
 			
@@ -195,8 +200,17 @@ public class StorageTest {
 				i--;
 		}
 		assertEquals(i,0);
-		if (f.exists())
-			f.delete();
+		
+		s.deleteInProcessing("a"+name);
+		s.deleteInProcessing("b"+name);
+		s.deleteInProcessing("c"+name);
+		s.deleteInProcessing("d"+name);
+		s.deleteInProcessing("e"+name);
+		
+		out=s.getAllProcessing();
+		assertEquals(out.length,0);
+		
+		
 	}
 
 	/**
@@ -207,7 +221,7 @@ public class StorageTest {
 		Storage s= new Storage("/tmp/junit");
 		String name= "123.12v12v45";
 		String[] out=null;
-		File f= new File("/tmp/junit/Storage/" + name);
+		
 		String message = "Hello world";
 		try {
 			
@@ -229,8 +243,14 @@ public class StorageTest {
 				i--;
 		}
 		assertEquals(i,0);
-		if (f.exists())
-			f.delete();
+		s.deleteInStorage(name + "a");
+		s.deleteInStorage(name + "a1");
+		s.deleteInStorage(name + "a2");
+		s.deleteInStorage(name + "a3");
+		s.deleteInStorage("d"+name);
+		s.deleteInStorage("e"+name);
+		out=s.findAllinStorage(name);
+		assertEquals(out.length,0);
 	}
 
 	/**
@@ -241,7 +261,7 @@ public class StorageTest {
 		Storage s= new Storage("/tmp/junit");
 		String name= "123.12v12v45";
 		String[] out=null;
-		File f= new File("/tmp/junit/Replica/" + name);
+		
 		String message = "Hello world";
 		try {
 			
@@ -263,8 +283,19 @@ public class StorageTest {
 				i--;
 		}
 		assertEquals(i,0);
-		if (f.exists())
-			f.delete();
+		s.deleteInReplica(name + "a");
+		s.deleteInReplica(name + "a1");
+		s.deleteInReplica(name + "a2");
+		s.deleteInReplica(name + "a3");
+		s.deleteInReplica("d"+name);
+		s.deleteInReplica("e"+name);
+		out=s.findAllinStorage(name);
+		assertEquals(out.length,0);
+		
 	}
 
+	
+	
+	
+	
 }

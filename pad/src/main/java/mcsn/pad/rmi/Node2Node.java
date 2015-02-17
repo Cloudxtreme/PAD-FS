@@ -11,7 +11,7 @@ import mcsn.pad.Pair;
  */
 public interface Node2Node {
 	/*like client api, plus info on the vector clock*/
-	void put(String key, Serializable value, String clocks, int from) throws RemoteException;
+	void put(String key, Serializable value, String clocks) throws RemoteException;
 	Pair[] get(String key) throws RemoteException;
 	
 }
