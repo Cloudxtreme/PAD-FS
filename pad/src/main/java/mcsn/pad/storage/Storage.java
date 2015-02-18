@@ -138,12 +138,12 @@ public class Storage {
 		deleteFile(name, ARCHIVE_PATH + "/Processing/");
 	}
 	
-	private String[] getAllFile(String path) {
+	private synchronized String[] getAllFile(String path) {
 		File f= new File(path);
 		return f.list();
 	}
 	
-	private String[] getAllVersion(String name_prefix, String path) {
+	private synchronized String[] getAllVersion(String name_prefix, String path) {
 		File file = new File(path);
 		nameFilter f= new nameFilter(name_prefix);
 		File[] list = file.listFiles(f);
@@ -158,7 +158,7 @@ public class Storage {
 
 	
 	
-	private void writeFile(String filename, Serializable obj, String path) throws IOException {
+	private synchronized void writeFile(String filename, Serializable obj, String path) throws IOException {
 		OutputStream file = new FileOutputStream(path + filename);
 	    OutputStream buffer = new BufferedOutputStream(file);
 	    ObjectOutput output = new ObjectOutputStream(buffer);
@@ -166,14 +166,14 @@ public class Storage {
 	    output.close();
 	}
 	
-	private void deleteFile(String filename, String path) {
+	private synchronized void deleteFile(String filename, String path) {
 		File f= new File(path+filename);
 		f.delete();
 		return;
 	}
 
 	
-	private Serializable readFile(String filename, String path) throws IOException, ClassNotFoundException {
+	private synchronized Serializable readFile(String filename, String path) throws IOException, ClassNotFoundException {
 		InputStream file = new FileInputStream(path + filename);
 	    InputStream buffer = new BufferedInputStream(file);
 	    ObjectInput input = new ObjectInputStream (buffer);

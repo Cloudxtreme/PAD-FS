@@ -12,6 +12,7 @@ public class RemoteNode2Node implements Node2Node {
 	private int n; // number of peers
 	private int k; // number of replicas
 	private Storage s; //local storage
+	
 	public RemoteNode2Node(int _myid, int _n, int _k, Storage _s) {
 		n=_n;
 		k=_k;

@@ -28,8 +28,10 @@ public class RemoteFS implements FS {
 		myN2N=cacheN2N.get(myid);
 	}
 	
+	
+	//FIXME not working well
 	private boolean isReplica(int hash) {
-		for(int i=hash+1; i<=hash+k; i=(i+1)%n )
+		for(int i=hash+1; i<= hash+k; i=(i+1)%n )
 			if (i==myid)
 				return true;
 		
@@ -79,6 +81,7 @@ public class RemoteFS implements FS {
 				} catch (RemoteException e)  {
 					//like cache fault...
 					//TODO get the new object from rmi registry
+					peers.get(5);
 				}
 				
 				
