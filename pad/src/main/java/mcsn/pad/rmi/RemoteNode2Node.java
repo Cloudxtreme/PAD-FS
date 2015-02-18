@@ -166,7 +166,7 @@ public class RemoteNode2Node implements Node2Node {
 				try {
 					//v is the name of the file with in append the vector clock
 					Serializable obj=s.readStorage(v);
-					String clock=v.substring(v.indexOf('.'), v.length());
+					String clock=v.substring(v.indexOf('.') +1, v.length());
 					output[i]=new Pair(obj,clock);
 					i++;
 				} catch (Exception e) {
@@ -184,7 +184,7 @@ public class RemoteNode2Node implements Node2Node {
 			for (String v : allVersion ) {
 				try {
 					Serializable obj=s.readReplica(v);
-					String clock=v.substring(v.indexOf('.'), v.length());
+					String clock=v.substring(v.indexOf('.') +1, v.length());
 					output[i]=new Pair(obj,clock);
 					i++;
 				} catch (Exception e) {

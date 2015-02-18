@@ -116,10 +116,56 @@ public class RemoteN2NTest {
 			assertTrue(s.findAllinStorage(name).length == 2);
 			
 			all=r.get(name);
+			for(int i=0; i<2; i++) {
+				System.out.println(all[i].getLeft());
+				System.out.println(all[i].getRight());
+			}
 			assertTrue(all.length == 2);
 			
 			s.deleteInStorage(name +".2v1v0v0v" );
 			s.deleteInStorage(name +".1v1v0v1v" );
+			
+			
+			
+			
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		System.out.println("ho finito il test");
+	}
+	
+	
+	@Test
+	public void testGetReplica() {
+		RemoteNode2Node r= new RemoteNode2Node(26, 54, 3, s);
+		String message= "hello pad";
+		String name= "pippo";
+		File file = new File("/tmp/junit/Replica/pippo.1v0v0v0v");
+		
+		try {
+			r.put(name, message, "1v0v0v0v");
+			assertTrue(file.exists());
+			Pair[] all=r.get(name);
+			assertTrue(all.length == 1);
+			r.put(name, message, "1v1v0v0v");
+			assertTrue(!file.exists()); //deleted old version
+			file = new File("/tmp/junit/Replica/pippo.1v1v0v0v");
+			assertTrue(file.exists()); //check if new version exists
+			r.put(name, message, "2v1v0v0v");
+			file = new File("/tmp/junit/Replica/pippo.2v1v0v0v");
+			assertTrue(file.exists()); //check if new version exists
+			r.put(name, message, "1v1v0v1v");
+			assertTrue(s.findAllinReplica(name).length == 2);
+			
+			all=r.get(name);
+			for(int i=0; i<2; i++) {
+				System.out.println(all[i].getLeft());
+				System.out.println(all[i].getRight());
+			}
+			assertTrue(all.length == 2);
+			
+			s.deleteInReplica(name +".2v1v0v0v" );
+			s.deleteInReplica(name +".1v1v0v1v" );
 			
 			
 			
