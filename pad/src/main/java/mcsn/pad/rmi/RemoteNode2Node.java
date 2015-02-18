@@ -29,10 +29,13 @@ public class RemoteNode2Node implements Node2Node {
 	
 	
 	private int[] getClock(String clocks) {
+		
 		int[] vc = new int[k+1];
 		for(int i=0; i<k+1; i++) {
-			vc[i]= Integer.parseInt(clocks.substring(0, clocks.indexOf('v')-1));
-			clocks=clocks.substring(0, clocks.indexOf('v')-1);
+			
+			vc[i]= Integer.parseInt(clocks.substring(0, clocks.indexOf('v')));
+			
+			clocks=clocks.substring(clocks.indexOf('v')+1, clocks.length());
 		}
 		return vc;
 	}
@@ -50,13 +53,19 @@ public class RemoteNode2Node implements Node2Node {
 		//check if the file is really for me
 		if ((hash != myid)&&(!isReplica(hash)))
 			throw new RemoteException("Requested key " + key + " is not relative on this node"); 
+		
+		
 		int[] vc=getClock(clocks);
 		
+		
 		if (myid== hash) {
-			String[] localclocks=s.findAllinStorage(key);
 			
+			String[] localclocks=s.findAllinStorage(key);
+			System.out.println("#found " + localclocks.length);
 			if(localclocks.length==0)  {
+				
 				try {
+					System.out.println("PAD-FS: first time writing" + key);
 					s.writeStorage(key + "." + clocks, value);
 				} catch (IOException e) {
 					throw new RemoteException("cannot update file " + key + " with new clock " + clocks );
@@ -64,17 +73,28 @@ public class RemoteNode2Node implements Node2Node {
 				return;
 			}
 			
+			
 			for (String local: localclocks) {
-				int[] vc_local = getClock(local.substring(local.indexOf('.') +1, local.length() -1));
+				int[] vc_local = getClock(local.substring(local.indexOf('.') +1, local.length()));
+				System.out.println(compatibleClocks(vc_local, vc));
 				if (compatibleClocks(vc_local, vc)) {
 					try {
+						System.out.println("PAD-FS: Updated Value of " + key);
 						s.writeStorage(key + "." + clocks, value);
 						s.deleteInStorage(local);
 					} catch (IOException e) {
 						throw new RemoteException("cannot update file " + key + " with new clock " + clocks );
 					}
 					return;
-				}
+				} 
+			}
+			
+			//insert also if the clock are not compatibles, but not deleting old versions
+			try {
+				System.out.println("PAD-FS: Added Conflicting Value of" + key);
+				s.writeStorage(key + "." + clocks, value);
+			} catch (IOException e) {
+				throw new RemoteException("cannot update file " + key + " with new clock " + clocks );
 			}
 			
 		}
@@ -85,6 +105,7 @@ public class RemoteNode2Node implements Node2Node {
 			
 			if(localclocks.length==0)  {
 				try {
+					System.out.println("PAD-FS: Replica first time writing" + key);
 					s.writeReplica(key + "." + clocks, value);
 				} catch (IOException e) {
 					throw new RemoteException("cannot update file " + key + " with new clock " + clocks );
@@ -93,9 +114,10 @@ public class RemoteNode2Node implements Node2Node {
 			}
 			
 			for (String local: localclocks) {
-				int[] vc_local = getClock(local.substring(local.indexOf('.') +1, local.length() -1));
+				int[] vc_local = getClock(local.substring(local.indexOf('.') +1, local.length()));
 				if (compatibleClocks(vc_local, vc)) {
 					try {
+						System.out.println("PAD-FS: Replica  update value of " + key);
 						s.writeReplica(key + "." + clocks, value);
 						s.deleteInReplica(local);
 					} catch (IOException e) {
@@ -103,6 +125,15 @@ public class RemoteNode2Node implements Node2Node {
 					}
 					return;
 				}
+			}
+			
+			
+			//insert also if the clock are not compatibles, but not deleting old versions
+			try {
+				System.out.println("PAD-FS:Replica added Conflicting Value of" + key);
+				s.writeReplica(key + "." + clocks, value);
+			} catch (IOException e) {
+				throw new RemoteException("cannot update file " + key + " with new clock " + clocks );
 			}
 			
 		}
@@ -135,7 +166,7 @@ public class RemoteNode2Node implements Node2Node {
 				try {
 					//v is the name of the file with in append the vector clock
 					Serializable obj=s.readStorage(v);
-					String clock=v.substring(v.indexOf('.'), v.length() -1);
+					String clock=v.substring(v.indexOf('.'), v.length());
 					output[i]=new Pair(obj,clock);
 					i++;
 				} catch (Exception e) {
@@ -153,7 +184,7 @@ public class RemoteNode2Node implements Node2Node {
 			for (String v : allVersion ) {
 				try {
 					Serializable obj=s.readReplica(v);
-					String clock=v.substring(v.indexOf('.'), v.length() -1);
+					String clock=v.substring(v.indexOf('.'), v.length());
 					output[i]=new Pair(obj,clock);
 					i++;
 				} catch (Exception e) {
