@@ -1,6 +1,6 @@
 package mcsn.pad;
 
-import java.io.IOException;
+
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -43,26 +43,45 @@ public class Deamon {
 		}
 	
 	
+	private int[] getClock(String clocks) {
+		
+		int[] vc = new int[k+1];
+		for(int i=0; i<k+1; i++) {
+			
+			vc[i]= Integer.parseInt(clocks.substring(0, clocks.indexOf('v')));
+			
+			clocks=clocks.substring(clocks.indexOf('v')+1, clocks.length());
+		}
+		return vc;
+	}
+	
 	public synchronized void FetchProcessing() {
 		String[] toProc = s.getAllProcessing();
+		// process all file
 		for (String filename : toProc) {
 			int hash=filename.hashCode() % n;
 			Serializable obj;
+			
+			try {
+				obj= s.readProcessing(filename);
+			} catch (Exception e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return;
+			} 
+			
 			if( (hash != myid) && !isReplica(hash)) {
 			
+				//ask to all node that can store the object
 				for (int i=hash; i<=hash+k; i++ ) {
-					FS remote=cacheFS.get(i);
-					try {
-						obj= s.readProcessing(filename);
-					} catch (Exception e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-						return;
-					} 
-					// i will  try to ask find the info in my node
+					FS remote=cacheFS.get(i); //FIXMEif is null download a new object
+					
+					// i will  try to ask find the info in my node 
 					try {
 						//i will try to reuse the object if the connection is up
 						remote.put(filename, obj);
+						s.deleteInProcessing(filename);
+						return;
 					} catch (RemoteException e)  {
 						//like cache fault...
 						//TODO get the new object from rmi registry
@@ -73,6 +92,8 @@ public class Deamon {
 					try {
 						//i will try to recall the method on the new retrieved object
 						remote.put(filename, obj);
+						s.deleteInProcessing(filename);
+						return;
 					} catch (RemoteException e)  {
 						
 						//no thing to do, we will try to the next candidate
@@ -80,8 +101,79 @@ public class Deamon {
 					
 				}
 				
+			} else if (hash ==myid) {
+				try {
+					String[] all=s.findAllinStorage(filename);
+					if (all.length == 0) {
+						//case new insertion;
+						String c = "1v";
+						for (int z=0; z<k; z++ )
+							c+="0v";   //NOTE: will create a lot of garbage for large k, but normally k is small
+						myN2N.put(filename, obj, "."+c);
+						
+					} else {
+						//FIXME update only the first clock...
+						int[] vc=getClock(all[0]);
+						vc[0]++;
+						myN2N.put(filename, obj, "."+ClockToString(vc));
+						s.deleteInStorage(all[0]);
+						all=null;
+						vc=null;
+					}
+					
+					s.deleteInProcessing(filename);
+					
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return;
+				} 
+				
+				
+			} else {
+				//replica case
+				try {
+					String[] all=s.findAllinReplica(filename);
+					if (all.length == 0) {
+						//case new insertion;
+						//TODO fix as the isReplica Function!!!
+						String c="";
+						for (int z=hash; z<k; z++ )
+							c+="0v";
+						for (int z=0; z<k; z++ )
+							c+="0v";   //NOTE: will create a lot of garbage for large k, but normally k is small
+						myN2N.put(filename, obj, "."+c);
+						
+					} else {
+						//FIXME update only the first clock...
+						int[] vc=getClock(all[0]);
+						vc[0]++;
+						myN2N.put(filename, obj, "." + ClockToString(vc));
+						s.deleteInReplica(all[0]);
+						all=null;
+						vc=null;
+					}
+					
+					s.deleteInProcessing(filename);
+					
+				} catch (RemoteException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					return;
+				} 
+				
 			}
+			
+			
 		}
+	}
+
+	private String ClockToString(int[] vc) {
+		String c="";
+		for (int i : vc) {
+			c+= new Integer(i).toString() + "v"; //BAD: LOT OF GARBAGE
+		}
+		return c;
 	}
 	
 }
