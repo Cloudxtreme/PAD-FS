@@ -33,15 +33,15 @@ public class Deamon {
 		cacheFS=_fs;
 	}
 
-	//FIXME not working well
 	private boolean isReplica(int hash) {
-		for(int i=hash+1; i<= hash+k; i=(i+1)%n )
-				if (i==myid)
-					return true;
-			
-			return false;
+		int h1;
+		for(int i=0; i<k; i++ ) {
+			h1=(hash + 1 + i) % n;
+			if (h1==myid)
+				return true;
 		}
-	
+		return false;
+	}
 	
 	private int[] getClock(String clocks) {
 		

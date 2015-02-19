@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.Hashtable;
 
 import mcsn.pad.Pair;
 import mcsn.pad.storage.Storage;
@@ -14,11 +15,11 @@ public class RemoteFS implements FS {
 	private int n; // number of peers
 	private int k; // number of replicas
 	private Storage s; //local storage
-	private HashMap<Integer,Node2Node> cacheN2N; //cache of remote object
+	private Hashtable<Integer,RemoteNode2Node> cacheN2N; //cache of remote object
 	private HashMap<Integer,String> peers; //mapping id to registry Url
 	private Node2Node myN2N;
 	
-	public RemoteFS(int _myid, int _n, int _k, Storage _s, HashMap<Integer,Node2Node> _n2n, HashMap<Integer,String> p) {
+	public RemoteFS(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,RemoteNode2Node> _n2n, HashMap<Integer,String> p) {
 		n=_n;
 		k=_k;
 		myid=_myid;
@@ -29,12 +30,14 @@ public class RemoteFS implements FS {
 	}
 	
 	
-	//FIXME not working well
+	
 	private boolean isReplica(int hash) {
-		for(int i=hash+1; i<= hash+k; i=(i+1)%n )
-			if (i==myid)
+		int h1;
+		for(int i=0; i<k; i++ ) {
+			h1=(hash + 1 + i) % n;
+			if (h1==myid)
 				return true;
-		
+		}
 		return false;
 	}
 	
@@ -53,14 +56,17 @@ public class RemoteFS implements FS {
 
 	public Serializable[] get(String key) throws RemoteException {
 		int hash = key.hashCode() % n;
+		
 		if (hash== myid || isReplica(hash)) {
 			// i will find the info in my node
+			
 			Pair[] found = myN2N.get(key);
+			
 			Serializable[] output= new Serializable[found.length];
 			for (int i=0; i< found.length; i++) {
 				output[i]=found[i].getLeft();
 			}
-				
+			
 			return output;
 		} else {
 			for (int i=hash; i<=hash+k; i++ ) {
