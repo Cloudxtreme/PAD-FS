@@ -74,7 +74,7 @@ public class Deamon {
 			
 				//ask to all node that can store the object
 				for (int i=hash; i<=hash+k; i++ ) {
-					FS remote=cacheFS.get(i); //FIXMEif is null download a new object
+					FS remote=cacheFS.get(i); //FIXME if is null download a new object
 					
 					// i will  try to ask find the info in my node 
 					try {

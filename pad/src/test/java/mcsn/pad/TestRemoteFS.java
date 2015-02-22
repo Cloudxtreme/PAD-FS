@@ -21,6 +21,7 @@ import org.junit.Test;
  */
 public class TestRemoteFS {
 
+	
 	/**
 	 * Test method for {@link mcsn.pad.rmi.RemoteFS#RemoteFS(int, int, int, mcsn.pad.storage.Storage, java.util.HashMap, java.util.HashMap)}.
 	 */
@@ -32,7 +33,7 @@ public class TestRemoteFS {
 			Hashtable<Integer,Node2Node> t= new Hashtable<Integer,Node2Node>();
 			t.put(24, new RemoteNode2Node(24, 54, 3, s));
 			RemoteFS rfs;
-			rfs = new RemoteFS(24, 54, 3, s, t, null);
+			rfs = new RemoteFS(24, 54, 3, s, t, null,null);
 			assertTrue(rfs!=null);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
@@ -50,7 +51,7 @@ public class TestRemoteFS {
 			Storage s= new Storage("/tmp/junit");
 			Hashtable<Integer,Node2Node> t= new Hashtable<Integer,Node2Node>();
 			t.put(24, new RemoteNode2Node(24, 54, 3, s));
-			RemoteFS rfs= new RemoteFS(24, 54, 3, s, t, null);
+			RemoteFS rfs= new RemoteFS(24, 54, 3, s, t, null,null);
 			assertTrue(rfs!=null);
 			String message= "hello pad";
 			String name= "pippo";
@@ -83,7 +84,7 @@ public class TestRemoteFS {
 			Storage s= new Storage("/tmp/junit");
 			Hashtable<Integer,Node2Node> t= new Hashtable<Integer,Node2Node>();
 			t.put(24, new RemoteNode2Node(24, 54, 3, s));
-			RemoteFS rfs= new RemoteFS(24, 54, 3, s, t, null);
+			RemoteFS rfs= new RemoteFS(24, 54, 3, s, t, null,null);
 			assertTrue(rfs!=null);
 			String message= "hello pad";
 			String name= "pippo";
@@ -117,7 +118,7 @@ public void testGetFromReplica() {
 			Storage s= new Storage("/tmp/junit");
 			Hashtable<Integer,Node2Node> t= new Hashtable<Integer,Node2Node>();
 			t.put(25, new RemoteNode2Node(25, 54, 3, s));
-			RemoteFS rfs= new RemoteFS(25, 54, 3, s, t, null);
+			RemoteFS rfs= new RemoteFS(25, 54, 3, s, t, null,null);
 			assertTrue(rfs!=null);
 			String message= "hello pad";
 			String name= "pippo";

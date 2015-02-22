@@ -7,6 +7,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Hashtable;
 
+import mcsn.pad.Deamon;
+import mcsn.pad.DeamonThread;
 import mcsn.pad.Pair;
 import mcsn.pad.storage.Storage;
 
@@ -23,9 +25,12 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 	private Hashtable<Integer,Node2Node> cacheN2N; //cache of remote object
 	private HashMap<Integer,String> peers; //mapping id to registry Url
 	private Node2Node myN2N;
+	private Deamon d;
 	
-	public RemoteFS(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,Node2Node> _n2n, HashMap<Integer,String> p) throws RemoteException {
+	public RemoteFS(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,Node2Node> _n2n, HashMap<Integer,String> p
+			,Deamon _d) throws RemoteException {
 		super();
+		d=_d;
 		n=_n;
 		k=_k;
 		myid=_myid;
@@ -51,7 +56,7 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 		
 		try {
 			s.writeProcessing(key, value); //can overwrite but it is ok!
-			//TODO signal to DEAMON
+			new DeamonThread(d, false).start();
 		} catch (IOException e) {
 			throw new RemoteException("cannot write into processing");
 		}
