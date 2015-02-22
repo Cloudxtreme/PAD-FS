@@ -1,0 +1,9 @@
+<allNodes k="3">
+	<name1 url="//localhost:1999" path_archive="/tmp/node1_storage"></name1>
+	<name2 url="//localhost:2000" path_archive="/tmp/node2_storage"></name2>
+	<name3 url="//localhost:2001" path_archive="/tmp/node3_storage"></name3>
+	<name4 url="//localhost:2002" path_archive="/tmp/node4_storage"></name4>
+	<name5 url="//localhost:2003" path_archive="/tmp/node5_storage"></name5>
+	<name6 url="//localhost:2004" path_archive="/tmp/node6_storage"></name6>
+	<name7 url="//localhost:2005" path_archive="/tmp/node7_storage"></name7>
+</allNodes>

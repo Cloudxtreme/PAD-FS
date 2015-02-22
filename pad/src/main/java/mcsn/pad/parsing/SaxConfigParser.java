@@ -19,7 +19,7 @@ public class SaxConfigParser extends DefaultHandler{
 		peers=table; //taking the hash to populate with the neighbors
 		info=_info;
 		myName=_myName;
-		if (info.length < 2) {
+		if (info.length < 5) {
 				throw new SAXException("Info String Array Passed in the constructor is too small");
 		}
 	}
@@ -35,9 +35,10 @@ public class SaxConfigParser extends DefaultHandler{
             Attributes atts) throws SAXException {
     	
     	//root element, nothing to do
-    	if(localName == "allNodes") 
+    	if(localName == "allNodes") {
+    		info[4]=atts.getValue(0);
     		return;
-    	
+    	}
     	idx++;
     	//element relative to this Node, getting al the info
     	
@@ -49,6 +50,8 @@ public class SaxConfigParser extends DefaultHandler{
     			if (atts.getLocalName(i)=="path_archive") 
     				info[1]=atts.getValue(i); //path archive
     		}
+    		info[2]=new Integer(idx).toString();
+    		info[3]=new Integer(idx+1).toString();
     		return;
     	}
     	
@@ -64,7 +67,7 @@ public class SaxConfigParser extends DefaultHandler{
     			
     	//TODO fix me con numeri
     	peers.put(new Integer(idx), address);
-    	
+    	info[3]=new Integer(idx+1).toString();
     		
     	}
     	

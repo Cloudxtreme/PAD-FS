@@ -10,6 +10,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.util.HashMap;
 import java.util.Hashtable;
+//import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -34,7 +35,8 @@ public class Node {
 	
 	
 	private HashMap<Integer,String> peers; //table with urls of all the other peers
-	private String[] storing_settings; //my setting (my ulr, my path of archive)
+	private String[] MySettings; //my setting (my ulr, my path of archive)
+	
 	
 
 	public Node() throws RemoteException {}
@@ -42,7 +44,7 @@ public class Node {
 
     public static void main(String args[]) 
     { 
-    	/*ARGS NEEDED: PATH OF CONFIG.XML and MYNAME */
+    	
     	String configFilePath;
     	String MyName;
     	
@@ -91,8 +93,7 @@ public class Node {
     	try {
     		Node node= new Node();
     		node.StartUp(MyName, configFilePath);
-    		int myid=Integer.parseInt(args[2]);
-    		node.setupRMI(myid);
+    		node.setupRMI();
     		
     		
     	} catch (Exception e ) {
@@ -117,13 +118,13 @@ public class Node {
     }
 
     
-    public void setupRMI(int myid) throws RemoteException, MalformedURLException {
-    	String myUrl=storing_settings[0];
+    public void setupRMI() throws RemoteException, MalformedURLException {
+    	String myUrl=MySettings[0];
 		int port= Integer.parseInt(myUrl.substring(myUrl.indexOf(':') + 1, myUrl.length()));
 		System.out.println("PAD-FS: trying to create the registry");
     	LocateRegistry.createRegistry(port);
     	System.out.println("registry UP :)");
-    	Storage s= new Storage(storing_settings[1]);
+    	Storage s= new Storage(MySettings[1]);
     	System.out.println("PAD-FS: storage is ready");
     	
     	Hashtable<Integer,FS> cacheFS=new Hashtable<Integer,FS>();
@@ -131,6 +132,7 @@ public class Node {
     	
     	//FIXME: first time can be setted also to null directly
     	//populating cache of remote object
+    	//FIXME: is this useless?????????????????????????????
     	for (Integer i : peers.keySet()) {
     		try {
 				FS fs = (FS) Naming.lookup(peers.get(i)+"/FS");
@@ -157,9 +159,12 @@ public class Node {
     	}
     	
     	//needed my id, where i find?
+    	final int myid = Integer.parseInt(MySettings[2]);
+    	final int n = Integer.parseInt(MySettings[3]);
+    	final int k = Integer.parseInt(MySettings[4]);
     	
-    	RemoteFS myFS = new RemoteFS(myid, 1,  0, s, cacheN2N, peers);
-    	RemoteNode2Node myN2N = new RemoteNode2Node(myid, 1, 0, s);
+    	RemoteFS myFS = new RemoteFS(myid, n,  k, s, cacheN2N, peers);
+    	RemoteNode2Node myN2N = new RemoteNode2Node(myid, n, k, s);
         // Bind this object instance to the name "HelloServer" 
         Naming.rebind(myUrl+"/FS", myFS); 
         Naming.rebind(myUrl+"/N2N", myN2N); 
@@ -177,13 +182,18 @@ public class Node {
 	    SAXParser saxParser = spf.newSAXParser();
 	    XMLReader xmlReader = saxParser.getXMLReader();
 	    peers=new HashMap<Integer,String>();
-	    storing_settings= new String[2];
-	    xmlReader.setContentHandler(new SaxConfigParser(peers,storing_settings, myId ) );
+	    MySettings= new String[5];
+	    xmlReader.setContentHandler(new SaxConfigParser(peers,MySettings, myId ) );
 	    xmlReader.parse(ConfigPath);
 	    
 	    //debug
-	    //System.out.println(storing_settings[0] +"---"+ storing_settings[1]);
-	    
+	    /*System.out.println(MySettings[0] +"---"+ MySettings[1] + "---" + MySettings[2]);
+	    System.out.println(MySettings[3] +"---"+ MySettings[4] );
+	    Set<Integer> all = peers.keySet();
+	    System.out.println("peers debugging");
+	    for ( Integer j : all) {
+	    	System.out.println(j + " : " + peers.get(j));
+	    }*/
 	}
 	
 	public static void clientGet(String registry, String key ) throws MalformedURLException, RemoteException, NotBoundException {
