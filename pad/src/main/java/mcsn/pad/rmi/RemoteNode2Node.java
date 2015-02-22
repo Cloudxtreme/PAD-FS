@@ -87,6 +87,7 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 			for (String local: localclocks) {
 				int[] vc_local = getClock(local.substring(local.indexOf('.') +1, local.length()));
 				System.out.println(compatibleClocks(vc_local, vc));
+				
 				if (compatibleClocks(vc_local, vc)) {
 					try {
 						System.out.println("PAD-FS: Updated Value of " + key);
@@ -151,11 +152,23 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 
 	/* returns true only if vc is a new compatible version of local_vc*/
 	private boolean compatibleClocks(int[] vc_local, int[] vc) {
+		boolean find=false;
 	
 		for (int i=0; i<k+1; i++) {
 			if (vc_local[i] > vc[i] )
 				return false;
 		}
+		
+		for (int i=0; i<k+1; i++) {
+			if (vc_local[i] != vc[i] ) {
+				find=true;
+				break;
+			}	
+		}
+		
+		if(!find)
+			return false;
+		
 		return true;
 	}
 
