@@ -71,7 +71,7 @@ public class Storage {
 		file= new File(ARCHIVE_PATH+ "/Processing");
 		if (!file.exists()) {
 			if (file.mkdir()) {
-				System.out.println("PAD-FS: Replica " + ARCHIVE_PATH + " is created!");
+				System.out.println("PAD-FS: Processing " + ARCHIVE_PATH + " is created!");
 			} else {
 				System.out.println("PAD-FS: Failed to create directory of Replicas!");
 			}

@@ -2,9 +2,13 @@ package mcsn.pad;
 
 import java.io.Serializable;
 
-public class Pair{
+public class Pair implements Serializable{
 
-	  private final Serializable left;
+	  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private final Serializable left;
 	  private final String right;
 
 	  public Pair(Serializable left, String right) {

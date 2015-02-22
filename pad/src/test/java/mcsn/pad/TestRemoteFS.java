@@ -26,11 +26,19 @@ public class TestRemoteFS {
 	 */
 	@Test
 	public void testRemoteFS() {
-		Storage s= new Storage("/tmp/junit");
-		Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
-		t.put(24, new RemoteNode2Node(24, 54, 3, s));
-		RemoteFS rfs= new RemoteFS(24, 54, 3, s, t, null);
-		assertTrue(rfs!=null);
+		
+		try {
+			Storage s= new Storage("/tmp/junit");
+			Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
+			t.put(24, new RemoteNode2Node(24, 54, 3, s));
+			RemoteFS rfs;
+			rfs = new RemoteFS(24, 54, 3, s, t, null);
+			assertTrue(rfs!=null);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 	/**
@@ -38,14 +46,15 @@ public class TestRemoteFS {
 	 */
 	@Test
 	public void testPut() {
-		Storage s= new Storage("/tmp/junit");
-		Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
-		t.put(24, new RemoteNode2Node(24, 54, 3, s));
-		RemoteFS rfs= new RemoteFS(24, 54, 3, s, t, null);
-		assertTrue(rfs!=null);
-		String message= "hello pad";
-		String name= "pippo";
 		try {
+			Storage s= new Storage("/tmp/junit");
+			Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
+			t.put(24, new RemoteNode2Node(24, 54, 3, s));
+			RemoteFS rfs= new RemoteFS(24, 54, 3, s, t, null);
+			assertTrue(rfs!=null);
+			String message= "hello pad";
+			String name= "pippo";
+		
 			rfs.put(name, message);
 			assertTrue(s.getAllProcessing().length == 1 && s.getAllProcessing()[0].equals(name));
 			String x=s.getAllProcessing()[0];
@@ -70,15 +79,16 @@ public class TestRemoteFS {
 	@Test
 	public void testGetFromStorage() {
 		
-		Storage s= new Storage("/tmp/junit");
-		Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
-		t.put(24, new RemoteNode2Node(24, 54, 3, s));
-		RemoteFS rfs= new RemoteFS(24, 54, 3, s, t, null);
-		assertTrue(rfs!=null);
-		String message= "hello pad";
-		String name= "pippo";
-		
 		try {
+			Storage s= new Storage("/tmp/junit");
+			Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
+			t.put(24, new RemoteNode2Node(24, 54, 3, s));
+			RemoteFS rfs= new RemoteFS(24, 54, 3, s, t, null);
+			assertTrue(rfs!=null);
+			String message= "hello pad";
+			String name= "pippo";
+		
+		
 			//emulating deamon
 			s.writeStorage(name + "1v0v0v0v", message);
 			
@@ -103,15 +113,16 @@ public class TestRemoteFS {
 @Test
 public void testGetFromReplica() {
 		
-		Storage s= new Storage("/tmp/junit");
-		Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
-		t.put(25, new RemoteNode2Node(25, 54, 3, s));
-		RemoteFS rfs= new RemoteFS(25, 54, 3, s, t, null);
-		assertTrue(rfs!=null);
-		String message= "hello pad";
-		String name= "pippo";
+	try {
+			Storage s= new Storage("/tmp/junit");
+			Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
+			t.put(25, new RemoteNode2Node(25, 54, 3, s));
+			RemoteFS rfs= new RemoteFS(25, 54, 3, s, t, null);
+			assertTrue(rfs!=null);
+			String message= "hello pad";
+			String name= "pippo";
 		
-		try {
+		
 			//emulating deamon
 			s.writeReplica(name, message);
 			

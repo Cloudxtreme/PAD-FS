@@ -1,4 +1,4 @@
 <allNodes>
-	<name1 url="//localhost:1999" path_archive="/Users/dariobalinzo/git/pad/node1_storage"></name1>
-	<name2 url="//localhost:2000" path_archive="/Users/dariobalinzo/git/pad/node2_storage"></name2>
+	<name1 url="//localhost:1999" path_archive="/tmp/node1_storage"></name1>
+	<name2 url="//localhost:2000" path_archive="/tmp/node2_storage"></name2>
 </allNodes>

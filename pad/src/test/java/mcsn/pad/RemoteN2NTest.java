@@ -19,8 +19,15 @@ public class RemoteN2NTest {
 
 	@Test
 	public void testRemoteNode2Node() {
-		RemoteNode2Node r= new RemoteNode2Node(0, 0, 0, s);
-		assertTrue(r != null);
+		RemoteNode2Node r;
+		try {
+			r = new RemoteNode2Node(0, 0, 0, s);
+			assertTrue(r != null);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 
 
@@ -28,12 +35,13 @@ public class RemoteN2NTest {
 	
 	@Test
 	public void testPutStorage() {
-		RemoteNode2Node r= new RemoteNode2Node(24, 54, 3, s);
-		String message= "hello pad";
-		String name= "pippo";
-		File file = new File("/tmp/junit/Storage/pippo.1v0v0v0v");
+		
 		
 		try {
+			RemoteNode2Node r= new RemoteNode2Node(24, 54, 3, s);
+			String message= "hello pad";
+			String name= "pippo";
+			File file = new File("/tmp/junit/Storage/pippo.1v0v0v0v");
 			r.put(name, message, "1v0v0v0v");
 			assertTrue(file.exists());
 			r.put(name, message, "1v1v0v0v");
@@ -60,12 +68,14 @@ public class RemoteN2NTest {
 	
 	@Test
 	public void testPutReplica() {
-		RemoteNode2Node r= new RemoteNode2Node(25, 54, 3, s);
-		String message= "hello pad";
-		String name= "pippo";
-		File file = new File("/tmp/junit/Replica/pippo.1v0v0v0v");
+		
 		
 		try {
+			RemoteNode2Node r= new RemoteNode2Node(25, 54, 3, s);
+			String message= "hello pad";
+			String name= "pippo";
+			File file = new File("/tmp/junit/Replica/pippo.1v0v0v0v");
+			
 			r.put(name, message, "1v0v0v0v");
 			assertTrue(file.exists());
 			
@@ -95,12 +105,15 @@ public class RemoteN2NTest {
 	
 	@Test
 	public void testGetStorage() {
-		RemoteNode2Node r= new RemoteNode2Node(24, 54, 3, s);
-		String message= "hello pad";
-		String name= "pippo";
-		File file = new File("/tmp/junit/Storage/pippo.1v0v0v0v");
+		
+		
 		
 		try {
+			RemoteNode2Node r= new RemoteNode2Node(24, 54, 3, s);
+			String message= "hello pad";
+			String name= "pippo";
+			File file = new File("/tmp/junit/Storage/pippo.1v0v0v0v");
+			
 			r.put(name, message, "1v0v0v0v");
 			assertTrue(file.exists());
 			Pair[] all=r.get(name);
@@ -137,12 +150,14 @@ public class RemoteN2NTest {
 	
 	@Test
 	public void testGetReplica() {
-		RemoteNode2Node r= new RemoteNode2Node(26, 54, 3, s);
-		String message= "hello pad";
-		String name= "pippo";
-		File file = new File("/tmp/junit/Replica/pippo.1v0v0v0v");
+		
 		
 		try {
+			RemoteNode2Node r= new RemoteNode2Node(26, 54, 3, s);
+			String message= "hello pad";
+			String name= "pippo";
+			File file = new File("/tmp/junit/Replica/pippo.1v0v0v0v");
+			
 			r.put(name, message, "1v0v0v0v");
 			assertTrue(file.exists());
 			Pair[] all=r.get(name);

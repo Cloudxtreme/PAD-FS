@@ -9,7 +9,7 @@ import mcsn.pad.Pair;
  * Modeling method for node 2 node communication
  * 
  */
-public interface Node2Node {
+public interface Node2Node extends java.rmi.Remote {
 	/*like client api, plus info on the vector clock*/
 	void put(String key, Serializable value, String clocks) throws RemoteException;
 	Pair[] get(String key) throws RemoteException;

@@ -3,14 +3,19 @@ package mcsn.pad.rmi;
 import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 import java.util.Hashtable;
 
 import mcsn.pad.Pair;
 import mcsn.pad.storage.Storage;
 
-public class RemoteFS implements FS {
+public class RemoteFS extends UnicastRemoteObject implements FS {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int myid; // my id
 	private int n; // number of peers
 	private int k; // number of replicas
@@ -19,7 +24,8 @@ public class RemoteFS implements FS {
 	private HashMap<Integer,String> peers; //mapping id to registry Url
 	private Node2Node myN2N;
 	
-	public RemoteFS(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,RemoteNode2Node> _n2n, HashMap<Integer,String> p) {
+	public RemoteFS(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,RemoteNode2Node> _n2n, HashMap<Integer,String> p) throws RemoteException {
+		super();
 		n=_n;
 		k=_k;
 		myid=_myid;

@@ -3,17 +3,24 @@ package mcsn.pad.rmi;
 import java.io.IOException;
 import java.io.Serializable;
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
+
 import mcsn.pad.Pair;
 import mcsn.pad.storage.Storage;
 
-public class RemoteNode2Node implements Node2Node {
+public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int myid; // my id
 	private int n; // number of peers
 	private int k; // number of replicas
 	private Storage s; //local storage
 	
-	public RemoteNode2Node(int _myid, int _n, int _k, Storage _s) {
+	public RemoteNode2Node(int _myid, int _n, int _k, Storage _s) throws RemoteException {
+		super();
 		n=_n;
 		k=_k;
 		myid=_myid;
