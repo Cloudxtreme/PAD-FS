@@ -16,6 +16,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import mcsn.pad.parsing.SaxConfigParser;
+import mcsn.pad.rmi.FS;
+import mcsn.pad.rmi.Node2Node;
 import mcsn.pad.rmi.RemoteFS;
 import mcsn.pad.rmi.RemoteNode2Node;
 import mcsn.pad.storage.Storage;
@@ -44,10 +46,44 @@ public class Node {
     	String configFilePath;
     	String MyName;
     	
+    	
     	if ( args.length < 2) {
     		System.out.println("Parameter needed: PATH OF CONFIG.XML and MYID");
     		return;
     	}
+    	
+    	if (args[0].equals("get")) {
+    		try {
+				clientGet(args[1],args[2]);
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NotBoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		return;
+    	}
+    	
+    	if (args[0].equals("put")) {
+    		try {
+				clientPut(args[1],args[2],args[3]);
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NotBoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		return;
+    	}
+    		
     	
     	MyName=args[1];
     	configFilePath=args[0];
@@ -90,14 +126,14 @@ public class Node {
     	Storage s= new Storage(storing_settings[1]);
     	System.out.println("PAD-FS: storage is ready");
     	
-    	Hashtable<Integer,RemoteFS> cacheFS=new Hashtable<Integer,RemoteFS>();
+    	Hashtable<Integer,FS> cacheFS=new Hashtable<Integer,FS>();
     	
     	
     	//FIXME: first time can be setted also to null directly
     	//populating cache of remote object
     	for (Integer i : peers.keySet()) {
     		try {
-				RemoteFS fs = (RemoteFS) Naming.lookup(peers.get(i)+"/FS");
+				FS fs = (FS) Naming.lookup(peers.get(i)+"/FS");
 				cacheFS.put(new Integer(i), fs);
 			} catch (NotBoundException e) {
 				
@@ -106,12 +142,12 @@ public class Node {
 			}
     	}
     	
-    	Hashtable<Integer,RemoteNode2Node> cacheN2N=new Hashtable<Integer,RemoteNode2Node>();
+    	Hashtable<Integer,Node2Node> cacheN2N=new Hashtable<Integer,Node2Node>();
     	
     	//populating cache of remote object
     	for (Integer i : peers.keySet()) {
     		try {
-				RemoteNode2Node fs = (RemoteNode2Node) Naming.lookup(peers.get(i)+"/N2N");
+				Node2Node fs = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
 				cacheN2N.put(new Integer(i), fs);
 			} catch (NotBoundException e) {
 				
@@ -122,8 +158,8 @@ public class Node {
     	
     	//needed my id, where i find?
     	
-    	RemoteFS myFS = new RemoteFS(myid, 2,  1, s, cacheN2N, peers);
-    	RemoteNode2Node myN2N = new RemoteNode2Node(myid, 2,  1, s);
+    	RemoteFS myFS = new RemoteFS(myid, 1,  0, s, cacheN2N, peers);
+    	RemoteNode2Node myN2N = new RemoteNode2Node(myid, 1, 0, s);
         // Bind this object instance to the name "HelloServer" 
         Naming.rebind(myUrl+"/FS", myFS); 
         Naming.rebind(myUrl+"/N2N", myN2N); 
@@ -150,15 +186,15 @@ public class Node {
 	    
 	}
 	
-	public void clientGet(String registry, String key ) throws MalformedURLException, RemoteException, NotBoundException {
-		RemoteFS fs = (RemoteFS) Naming.lookup( registry + "/FS"); 
+	public static void clientGet(String registry, String key ) throws MalformedURLException, RemoteException, NotBoundException {
+		FS fs = (FS) Naming.lookup( registry + "/FS"); 
 		Serializable[] all=fs.get(key);
 		for (Serializable s : all)
 			System.out.println("PAD-CLIENT: get " + key + " = " + (String) s );
 	}
 	
-	public void clientPut(String registry, String key, String value) throws MalformedURLException, RemoteException, NotBoundException {
-		RemoteFS fs = (RemoteFS) Naming.lookup( registry + "/FS");
+	public static void clientPut(String registry, String key, String value) throws MalformedURLException, RemoteException, NotBoundException {
+		FS fs = (FS) Naming.lookup( registry + "/FS");
 		fs.put(key, value);
 		System.out.println("PAD-CLIENT: put " + key + " , " + value );
 	}

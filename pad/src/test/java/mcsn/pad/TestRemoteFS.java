@@ -29,7 +29,7 @@ public class TestRemoteFS {
 		
 		try {
 			Storage s= new Storage("/tmp/junit");
-			Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
+			Hashtable<Integer,Node2Node> t= new Hashtable<Integer,Node2Node>();
 			t.put(24, new RemoteNode2Node(24, 54, 3, s));
 			RemoteFS rfs;
 			rfs = new RemoteFS(24, 54, 3, s, t, null);
@@ -48,7 +48,7 @@ public class TestRemoteFS {
 	public void testPut() {
 		try {
 			Storage s= new Storage("/tmp/junit");
-			Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
+			Hashtable<Integer,Node2Node> t= new Hashtable<Integer,Node2Node>();
 			t.put(24, new RemoteNode2Node(24, 54, 3, s));
 			RemoteFS rfs= new RemoteFS(24, 54, 3, s, t, null);
 			assertTrue(rfs!=null);
@@ -81,7 +81,7 @@ public class TestRemoteFS {
 		
 		try {
 			Storage s= new Storage("/tmp/junit");
-			Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
+			Hashtable<Integer,Node2Node> t= new Hashtable<Integer,Node2Node>();
 			t.put(24, new RemoteNode2Node(24, 54, 3, s));
 			RemoteFS rfs= new RemoteFS(24, 54, 3, s, t, null);
 			assertTrue(rfs!=null);
@@ -115,7 +115,7 @@ public void testGetFromReplica() {
 		
 	try {
 			Storage s= new Storage("/tmp/junit");
-			Hashtable<Integer,RemoteNode2Node> t= new Hashtable<Integer,RemoteNode2Node>();
+			Hashtable<Integer,Node2Node> t= new Hashtable<Integer,Node2Node>();
 			t.put(25, new RemoteNode2Node(25, 54, 3, s));
 			RemoteFS rfs= new RemoteFS(25, 54, 3, s, t, null);
 			assertTrue(rfs!=null);

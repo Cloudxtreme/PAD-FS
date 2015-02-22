@@ -20,11 +20,11 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 	private int n; // number of peers
 	private int k; // number of replicas
 	private Storage s; //local storage
-	private Hashtable<Integer,RemoteNode2Node> cacheN2N; //cache of remote object
+	private Hashtable<Integer,Node2Node> cacheN2N; //cache of remote object
 	private HashMap<Integer,String> peers; //mapping id to registry Url
 	private Node2Node myN2N;
 	
-	public RemoteFS(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,RemoteNode2Node> _n2n, HashMap<Integer,String> p) throws RemoteException {
+	public RemoteFS(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,Node2Node> _n2n, HashMap<Integer,String> p) throws RemoteException {
 		super();
 		n=_n;
 		k=_k;
