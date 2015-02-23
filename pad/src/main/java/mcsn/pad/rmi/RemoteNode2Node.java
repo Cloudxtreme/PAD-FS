@@ -58,7 +58,9 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 	public void put(String key, Serializable value, String clocks)
 			throws RemoteException {
 		
-		final int hash = key.hashCode() % n;
+		int hash = key.hashCode() % n;
+		if (hash < 0)
+		    hash += n;
 		
 		//check if the file is really for me
 		if ((hash != myid)&&(!isReplica(hash)))
@@ -179,6 +181,8 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 	public Pair[] get(String key) throws RemoteException {
 		
 		int hash = key.hashCode() % n;
+		if (hash < 0)
+		    hash += n;
 		
 		if (hash == myid) {
 			String[] allVersion = s.findAllinStorage(key);

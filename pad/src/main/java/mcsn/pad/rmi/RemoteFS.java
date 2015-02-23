@@ -70,6 +70,8 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 
 	public Serializable[] get(String key) throws RemoteException {
 		int hash = key.hashCode() % n;
+		if (hash < 0)
+		    hash += n;
 		
 		if (hash== myid || isReplica(hash)) {
 			// i will find the info in my node

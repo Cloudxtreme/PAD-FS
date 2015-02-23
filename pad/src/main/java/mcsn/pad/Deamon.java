@@ -63,6 +63,8 @@ public class Deamon {
 		// process all file
 		for (String filename : toProc) {
 			int hash=filename.hashCode() % n;
+			if (hash < 0)
+			    hash += n;
 			Serializable obj;
 			
 			try {
@@ -76,7 +78,7 @@ public class Deamon {
 			if( (hash != myid) && !isReplica(hash)) {
 			
 				//ask to all node that can store the object
-				for (int i=hash; i!=(hash+k+1); i=(i+1) %n ) {
+				for (int i=hash; i!=(hash+k+1)%n; i=(i+1) %n ) {
 					FS remote=cacheFS.get(i); //FIXME if is null download a new object
 					
 					// i will  try to ask find the info in my node 
@@ -102,9 +104,12 @@ public class Deamon {
 								
 								e1.printStackTrace();
 							}
+							
+							//TODO replica the update!!
 						}
 					else //get the new object from rmi registry
 						try {
+							System.out.println("asking peers for " + i + " getting "+ peers.get(i));
 							remote = (FS) Naming.lookup(peers.get(i)+"/FS");
 							cacheFS.put(new Integer(i),remote);
 						} catch (MalformedURLException e1) {
@@ -143,7 +148,7 @@ public class Deamon {
 						
 					} else {
 						//FIXME update only the first clock...
-						int[] vc=getClock(all[0]);
+						int[] vc=getClock(all[0].substring(all[0].indexOf('.') +1, all[0].length()));
 						vc[0]++;
 						myN2N.put(filename, obj, ClockToString(vc));
 						s.deleteInStorage(all[0]);
@@ -176,8 +181,12 @@ public class Deamon {
 						
 					} else {
 						//FIXME update only the first clock...
-						int[] vc=getClock(all[0]);
-						vc[0]++;
+						int[] vc=getClock(all[0].substring(all[0].indexOf('.') +1, all[0].length()));
+						int idx=1;
+						for (int x=(hash+1) %n; x!=myid; x=(x+1)%n) {
+							idx++;
+						}
+						vc[idx]++;
 						myN2N.put(filename, obj, ClockToString(vc));
 						s.deleteInReplica(all[0]);
 						all=null;
