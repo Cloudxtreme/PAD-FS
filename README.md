@@ -7,13 +7,43 @@ How to install:
 ===============
 
 ```
-1) git clone --recursive https://github.com/DarioBalinzo/PAD-FS
-2) cd pad
-3) mvn clean package
+git clone --recursive https://github.com/DarioBalinzo/PAD-FS
+cd PAD-FS/pad
+mvn clean package
 ```
 
 How to run:
 ==========
+```
+./startNodes.sh
+```
 
-TO DO...
 
+How to stop:
+=============
+```
+./stopNodes.sh
+```
+
+
+How to list all states:
+=======================
+```
+./lsStorages.sh
+```
+
+
+
+How to put:
+==========
+```
+ java -jar target/pad-0.0.1-SNAPSHOT.jar put "urlregistry" "key" "value"
+
+```
+
+How to get:
+==========
+```
+java -jar target/pad-0.0.1-SNAPSHOT.jar get "urlregistry" "key" 
+
+```
