@@ -1,4 +1,4 @@
-<allNodes k="3">
+<allNodes k="1">
 	<name1 url="//localhost:1999" path_archive="/tmp/node1_storage"></name1>
 	<name2 url="//localhost:2000" path_archive="/tmp/node2_storage"></name2>
 	<name3 url="//localhost:2001" path_archive="/tmp/node3_storage"></name3>

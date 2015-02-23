@@ -21,7 +21,9 @@ public class DeamonThread extends Thread {
     	   return;
        try {
     	   while (background) {
+    		   System.out.println("PAD-FS: DEAMON THREAD SLEEPING");
     		   Thread.sleep(10000);
+    		   System.out.println("PAD-FS: DEAMON IS PROCESSING");
     		   d.FetchProcessing();
     	   }
        } catch (Exception e) {

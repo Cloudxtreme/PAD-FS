@@ -2,6 +2,9 @@ package mcsn.pad.rmi;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
@@ -80,25 +83,35 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 			
 			return output;
 		} else {
-			for (int i=hash; i<=hash+k; i++ ) {
+			//error!!!
+			for (int i=hash; i!= (hash+k +1) %n; i=(i+1) %n ) {
 				Node2Node remote=cacheN2N.get(i);
 				Pair[] found;
 				Serializable[] output;
 				
-				// i will  try to ask find the info in my node
-				try {
-					//i will try to reuse the object if the connection is up
-					found = remote.get(key);
-					output= new Serializable[found.length];
-					for (int j=0; j< found.length; j++) {
-						output[j]=found[j].getLeft();
-					}
-					return output;
+				if (remote != null)// i will  try to ask find the info in my node
+					try {
+						//i will try to reuse the object if the connection is up
+						found = remote.get(key);
+						output= new Serializable[found.length];
+						for (int j=0; j< found.length; j++) {
+							output[j]=found[j].getLeft();
+						}
+						return output;
 					
-				} catch (RemoteException e)  {
+					} catch (RemoteException e)  {
 					//like cache fault...
-					//TODO get the new object from rmi registry
-					peers.get(5);
+					// get the new object from rmi registry
+					try {
+						remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
+						cacheN2N.put(new Integer(i),remote);
+					} catch (MalformedURLException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (NotBoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
 				
 				

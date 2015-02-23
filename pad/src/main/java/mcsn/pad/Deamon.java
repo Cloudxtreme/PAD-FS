@@ -2,6 +2,9 @@ package mcsn.pad;
 
 
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -73,20 +76,47 @@ public class Deamon {
 			if( (hash != myid) && !isReplica(hash)) {
 			
 				//ask to all node that can store the object
-				for (int i=hash; i<=hash+k; i++ ) {
+				for (int i=hash; i!=(hash+k+1); i=(i+1) %n ) {
 					FS remote=cacheFS.get(i); //FIXME if is null download a new object
 					
 					// i will  try to ask find the info in my node 
-					try {
-						//i will try to reuse the object if the connection is up
-						remote.put(filename, obj);
-						s.deleteInProcessing(filename);
-						return;
-					} catch (RemoteException e)  {
-						//like cache fault...
-						//TODO get the new object from rmi registry
-						peers.get(5);
-					}
+					if (remote != null)
+						try {
+							//i will try to reuse the object if the connection is up
+							remote.put(filename, obj);
+							s.deleteInProcessing(filename);
+							return;
+						} catch (RemoteException e)  {
+							//like cache fault...
+							//get the new object from rmi registry
+							try {
+								remote = (FS) Naming.lookup(peers.get(i)+"/FS");
+								cacheFS.put(new Integer(i),remote);
+							} catch (MalformedURLException e1) {
+								
+								e1.printStackTrace();
+							} catch (RemoteException e1) {
+								
+								e1.printStackTrace();
+							} catch (NotBoundException e1) {
+								
+								e1.printStackTrace();
+							}
+						}
+					else //get the new object from rmi registry
+						try {
+							remote = (FS) Naming.lookup(peers.get(i)+"/FS");
+							cacheFS.put(new Integer(i),remote);
+						} catch (MalformedURLException e1) {
+							
+							e1.printStackTrace();
+						} catch (RemoteException e1) {
+							
+							e1.printStackTrace();
+						} catch (NotBoundException e1) {
+							
+							e1.printStackTrace();
+						}
 					
 					
 					try {
@@ -109,13 +139,13 @@ public class Deamon {
 						String c = "1v";
 						for (int z=0; z<k; z++ )
 							c+="0v";   //NOTE: will create a lot of garbage for large k, but normally k is small
-						myN2N.put(filename, obj, "."+c);
+						myN2N.put(filename, obj, c);
 						
 					} else {
 						//FIXME update only the first clock...
 						int[] vc=getClock(all[0]);
 						vc[0]++;
-						myN2N.put(filename, obj, "."+ClockToString(vc));
+						myN2N.put(filename, obj, ClockToString(vc));
 						s.deleteInStorage(all[0]);
 						all=null;
 						vc=null;
@@ -142,13 +172,13 @@ public class Deamon {
 							c+="0v";
 						for (int z=0; z<k; z++ )
 							c+="0v";   //NOTE: will create a lot of garbage for large k, but normally k is small
-						myN2N.put(filename, obj, "."+c);
+						myN2N.put(filename, obj, c);
 						
 					} else {
 						//FIXME update only the first clock...
 						int[] vc=getClock(all[0]);
 						vc[0]++;
-						myN2N.put(filename, obj, "." + ClockToString(vc));
+						myN2N.put(filename, obj, ClockToString(vc));
 						s.deleteInReplica(all[0]);
 						all=null;
 						vc=null;

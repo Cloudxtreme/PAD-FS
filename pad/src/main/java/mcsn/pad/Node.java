@@ -160,18 +160,23 @@ public class Node {
     	}
     	
     	
-    	//needed my id, where i find?
+    	
     	final int myid = Integer.parseInt(MySettings[2]);
     	final int n = Integer.parseInt(MySettings[3]);
     	final int k = Integer.parseInt(MySettings[4]);
     	
     	
+    	RemoteNode2Node myN2N = new RemoteNode2Node(myid, n, k, s);
+    	cacheN2N.put(new Integer(myid), myN2N);
     	Deamon d= new Deamon(myid, n, k, s, cacheN2N, cacheFS, peers);
     	RemoteFS myFS = new RemoteFS(myid, n,  k, s, cacheN2N, peers,d);
-    	RemoteNode2Node myN2N = new RemoteNode2Node(myid, n, k, s);
+    	cacheFS.put(new Integer(myid), myFS);
+    	
         // Bind this object instance to the name "HelloServer" 
         Naming.rebind(myUrl+"/FS", myFS); 
         Naming.rebind(myUrl+"/N2N", myN2N); 
+       
+       
         
         
 		new DeamonThread(d, true).start(); 
