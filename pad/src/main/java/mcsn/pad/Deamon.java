@@ -1,6 +1,7 @@
 package mcsn.pad;
 
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -39,29 +40,45 @@ public class Deamon {
 
 	
 	
-	private int[] getClock(String clocks) {
-		
-		int[] vc = new int[k+1];
-		for(int i=0; i<k+1; i++) {
-			
-			vc[i]= Integer.parseInt(clocks.substring(0, clocks.indexOf('v')));
-			
-			clocks=clocks.substring(clocks.indexOf('v')+1, clocks.length());
-		}
-		return vc;
-	}
+	
+	
+	
 	
 	public synchronized void FetchProcessing() {
 		
 		String[] toProc = s.getAllProcessing();
 		// process all file
 		for (String filename : toProc) {
-			
-			firstTimeProcessing(filename);
-			
-			
+			if (! Utility.hasClock(filename) )
+				firstTimeProcessing(filename);
+			else
+			    finishProcessing(filename);
 		}
 	}
+
+	
+	
+	
+	private void finishProcessing(String filename) {
+		String onlyName= filename.substring(0, filename.indexOf('.'));
+		String clock=filename.substring( filename.indexOf('.')+ 1 , filename.length());
+		int hash = Utility.getHash(onlyName,n);
+		Serializable obj;
+		try {
+			obj= s.readProcessing(filename);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			return;
+		} 
+		
+		
+		synch(onlyName, clock, hash, obj);
+		return;
+		
+		
+	}
+
+
 
 	private void firstTimeProcessing(String filename) {
 		int hash = Utility.getHash(filename,n);
@@ -89,10 +106,80 @@ public class Deamon {
 		return;
 	}
 
+	
+	private void synch(String onlyname, String clock, int hash,Serializable obj) {
+		
+			//ask to all node that can store the object
+			boolean synch_all=true;
+			for (int i=hash; i!=(hash+k+1)%n; i=(i+1) %n ) {
+				Node2Node remote=cacheN2N.get(i); 
+				// i will  try to ask find the info in my node 
+				if (remote != null)
+					try {
+						//i will try to reuse the object if the connection is up
+						remote.put(onlyname, obj, clock);
+					} catch (RemoteException e)  {
+						//like cache fault...
+						//get the new object from rmi registry
+						try {
+							remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
+							cacheN2N.put(new Integer(i),remote);
+						} catch (MalformedURLException e1) {
+							synch_all=false;
+							e1.printStackTrace();
+						} catch (RemoteException e1) {
+							synch_all=false;
+							e1.printStackTrace();
+						} catch (NotBoundException e1) {
+							synch_all=false;
+							e1.printStackTrace();
+						}
+						
+						//TODO replica the update!!
+					}
+				else {//get the new object from rmi registry
+					try {
+						System.out.println("asking peers for " + i + " getting "+ peers.get(i));
+						remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
+						cacheN2N.put(new Integer(i),remote);
+					} catch (MalformedURLException e1) {
+						synch_all=false;
+						e1.printStackTrace();
+					} catch (RemoteException e1) {
+						synch_all=false;
+						e1.printStackTrace();
+					} catch (NotBoundException e1) {
+						synch_all=false;
+						e1.printStackTrace();
+					}
+				
+				
+					try {
+						//i will try to recall the method on the new retrieved object
+						remote.put(onlyname, obj,clock);
+					} catch (RemoteException e)  {
+						synch_all=false;
+					//no thing to do, we will try to the next candidate
+					}
+				
+				}
+			}
+			
+			// i will delete on processing only if i finish the synch
+			if (synch_all)
+				s.deleteInProcessing(onlyname + "." + clock);
+				
+		
+		
+	}
+	
+	
+	
 	private void putInMyReplica(String filename, int hash, Serializable obj) {
 		try {
 			//FIXME select max of my id
 			String[] all=s.findAllinReplica(filename);
+			String newClocks;
 			if (all.length == 0) {
 				//case new insertion;
 				//TODO fix as the isReplica Function!!!
@@ -107,54 +194,64 @@ public class Deamon {
 				for (int z=idx; z<k; z++ )
 					c+="0v";   //NOTE: will create a lot of garbage for large k, but normally k is small
 				myN2N.put(filename, obj, c);
+				newClocks=c;
 				
 			} else {
 				//FIXME update only the first clock...
-				int[] vc=getClock(all[0].substring(all[0].indexOf('.') +1, all[0].length()));
+				int[] vc=Utility.getClock(all[0].substring(all[0].indexOf('.') +1, all[0].length()),k);
 				int idx=1;
 				for (int x=(hash+1) %n; x!=myid; x=(x+1)%n) {
 					idx++;
 				}
 				vc[idx]++;
-				myN2N.put(filename, obj, Utility.ClockToString(vc));
+				newClocks=Utility.ClockToString(vc);
+				myN2N.put(filename, obj, newClocks);
 				s.deleteInReplica(all[0]);
 				all=null;
 				vc=null;
 			}
 			
 			s.deleteInProcessing(filename);
+			s.writeProcessing(filename + "." + newClocks, obj); //uptade processing with clocks, will be removed after all replica update
 			
 		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return;
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 
 	private void putInMyStorage(String filename, Serializable obj) {
 		try {
 			String[] all=s.findAllinStorage(filename);
+			String newClocks;
 			if (all.length == 0) {
 				//case new insertion;
 				String c = "1v";
 				for (int z=0; z<k; z++ )
 					c+="0v";   //NOTE: will create a lot of garbage for large k, but normally k is small
 				myN2N.put(filename, obj, c);
+				newClocks=c;
 				
 			} else {
 				//FIXME update only the first clock...
-				int[] vc=getClock(all[0].substring(all[0].indexOf('.') +1, all[0].length()));
+				int[] vc=Utility.getClock(all[0].substring(all[0].indexOf('.') +1, all[0].length()),k);
 				vc[0]++;
-				myN2N.put(filename, obj, Utility.ClockToString(vc));
+				newClocks=Utility.ClockToString(vc);
+				myN2N.put(filename, obj,newClocks );
 				s.deleteInStorage(all[0]);
-				all=null;
-				vc=null;
+				
 			}
 			
 			s.deleteInProcessing(filename);
+			s.writeProcessing(filename + "." + newClocks,  obj); //uptade processing with clocks, will be removed after all replica update
 			
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		} catch (IOException e) {
 			e.printStackTrace();
 			return;
 		}
@@ -163,6 +260,7 @@ public class Deamon {
 	private void tryToPutInMasterOrReplica(String filename, int hash,
 			Serializable obj) {
 		//ask to all node that can store the object
+		
 		for (int i=hash; i!=(hash+k+1)%n; i=(i+1) %n ) {
 			FS remote=cacheFS.get(i); //FIXME if is null download a new object
 			

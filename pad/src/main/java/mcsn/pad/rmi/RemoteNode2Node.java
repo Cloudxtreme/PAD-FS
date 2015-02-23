@@ -56,7 +56,7 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 		if (myid== hash) {
 			
 			String[] localclocks=s.findAllinStorage(key);
-			System.out.println("#found " + localclocks.length);
+			//System.out.println("#found " + localclocks.length);
 			if(localclocks.length==0)  {
 				
 				try {
