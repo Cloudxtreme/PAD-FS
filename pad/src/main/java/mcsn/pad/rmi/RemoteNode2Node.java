@@ -6,6 +6,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 import mcsn.pad.Pair;
+import mcsn.pad.Utility;
 import mcsn.pad.storage.Storage;
 
 public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
@@ -27,28 +28,10 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 		s=_s;
 	}
 	
-	private boolean isReplica(int hash) {
-		int h1;
-		for(int i=0; i<k; i++ ) {
-			h1=(hash + 1 + i) % n;
-			if (h1==myid)
-				return true;
-		}
-		return false;
-	}
 	
 	
-	private int[] getClock(String clocks) {
-		
-		int[] vc = new int[k+1];
-		for(int i=0; i<k+1; i++) {
-			
-			vc[i]= Integer.parseInt(clocks.substring(0, clocks.indexOf('v')));
-			
-			clocks=clocks.substring(clocks.indexOf('v')+1, clocks.length());
-		}
-		return vc;
-	}
+	
+	
 	
 	/*
 	 *	
@@ -63,11 +46,11 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 		    hash += n;
 		
 		//check if the file is really for me
-		if ((hash != myid)&&(!isReplica(hash)))
+		if ((hash != myid)&&(! Utility.isReplica(hash,n,k,myid)))
 			throw new RemoteException("Requested key " + key + " is not relative on this node"); 
 		
 		
-		int[] vc=getClock(clocks);
+		int[] vc=Utility.getClock(clocks,k);
 		
 		
 		if (myid== hash) {
@@ -87,10 +70,10 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 			
 			
 			for (String local: localclocks) {
-				int[] vc_local = getClock(local.substring(local.indexOf('.') +1, local.length()));
-				System.out.println(compatibleClocks(vc_local, vc));
+				int[] vc_local = Utility.getClock(local.substring(local.indexOf('.') +1, local.length()),k);
+				//System.out.println(Utility.compatibleClocks(vc_local, vc,k));
 				
-				if (compatibleClocks(vc_local, vc)) {
+				if ( Utility.compatibleClocks(vc_local, vc,k)) {
 					try {
 						System.out.println("PAD-FS: Updated Value of " + key);
 						s.writeStorage(key + "." + clocks, value);
@@ -113,7 +96,7 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 		}
 		
 		
-		if (isReplica(hash)) {
+		if (Utility.isReplica(hash,n,k,myid)) {
 			String[] localclocks=s.findAllinReplica(key);
 			
 			if(localclocks.length==0)  {
@@ -127,8 +110,8 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 			}
 			
 			for (String local: localclocks) {
-				int[] vc_local = getClock(local.substring(local.indexOf('.') +1, local.length()));
-				if (compatibleClocks(vc_local, vc)) {
+				int[] vc_local = Utility.getClock(local.substring(local.indexOf('.') +1, local.length()),k);
+				if (Utility.compatibleClocks(vc_local, vc, k)) {
 					try {
 						System.out.println("PAD-FS: Replica  update value of " + key);
 						s.writeReplica(key + "." + clocks, value);
@@ -152,27 +135,7 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 		}
 	}
 
-	/* returns true only if vc is a new compatible version of local_vc*/
-	private boolean compatibleClocks(int[] vc_local, int[] vc) {
-		boolean find=false;
 	
-		for (int i=0; i<k+1; i++) {
-			if (vc_local[i] > vc[i] )
-				return false;
-		}
-		
-		for (int i=0; i<k+1; i++) {
-			if (vc_local[i] != vc[i] ) {
-				find=true;
-				break;
-			}	
-		}
-		
-		if(!find)
-			return false;
-		
-		return true;
-	}
 
 	/*
 	 * 	get(key) will return all versions of the file indexed by key, if it is present in this node 
@@ -203,7 +166,7 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 			
 			return output;
 			
-		} else if(isReplica(hash)) {
+		} else if(Utility.isReplica(hash,n,k,myid)) {
 			
 			String[] allVersion = s.findAllinReplica(key);
 			Pair[] output= new Pair[allVersion.length];

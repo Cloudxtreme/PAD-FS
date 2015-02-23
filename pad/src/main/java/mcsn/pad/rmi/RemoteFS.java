@@ -13,6 +13,7 @@ import java.util.Hashtable;
 import mcsn.pad.Deamon;
 import mcsn.pad.DeamonThread;
 import mcsn.pad.Pair;
+import mcsn.pad.Utility;
 import mcsn.pad.storage.Storage;
 
 public class RemoteFS extends UnicastRemoteObject implements FS {
@@ -45,15 +46,6 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 	
 	
 	
-	private boolean isReplica(int hash) {
-		int h1;
-		for(int i=0; i<k; i++ ) {
-			h1=(hash + 1 + i) % n;
-			if (h1==myid)
-				return true;
-		}
-		return false;
-	}
 	
 	public void put(String key, Serializable value) throws RemoteException {
 		
@@ -73,7 +65,7 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 		if (hash < 0)
 		    hash += n;
 		
-		if (hash== myid || isReplica(hash)) {
+		if (hash== myid || Utility.isReplica(hash,n,k,myid)) {
 			// i will find the info in my node
 			
 			Pair[] found = myN2N.get(key);

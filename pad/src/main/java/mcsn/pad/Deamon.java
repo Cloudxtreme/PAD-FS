@@ -12,6 +12,7 @@ import java.util.Hashtable;
 import mcsn.pad.rmi.FS;
 import mcsn.pad.rmi.Node2Node;
 import mcsn.pad.storage.Storage;
+import mcsn.pad.Utility;
 
 public class Deamon {
 	
@@ -36,15 +37,7 @@ public class Deamon {
 		cacheFS=_fs;
 	}
 
-	private boolean isReplica(int hash) {
-		int h1;
-		for(int i=0; i<k; i++ ) {
-			h1=(hash + 1 + i) % n;
-			if (h1==myid)
-				return true;
-		}
-		return false;
-	}
+	
 	
 	private int[] getClock(String clocks) {
 		
@@ -59,160 +52,176 @@ public class Deamon {
 	}
 	
 	public synchronized void FetchProcessing() {
+		
 		String[] toProc = s.getAllProcessing();
 		// process all file
 		for (String filename : toProc) {
-			int hash=filename.hashCode() % n;
-			if (hash < 0)
-			    hash += n;
-			Serializable obj;
 			
-			try {
-				obj= s.readProcessing(filename);
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-				return;
-			} 
-			
-			if( (hash != myid) && !isReplica(hash)) {
-			
-				//ask to all node that can store the object
-				for (int i=hash; i!=(hash+k+1)%n; i=(i+1) %n ) {
-					FS remote=cacheFS.get(i); //FIXME if is null download a new object
-					
-					// i will  try to ask find the info in my node 
-					if (remote != null)
-						try {
-							//i will try to reuse the object if the connection is up
-							remote.put(filename, obj);
-							s.deleteInProcessing(filename);
-							return;
-						} catch (RemoteException e)  {
-							//like cache fault...
-							//get the new object from rmi registry
-							try {
-								remote = (FS) Naming.lookup(peers.get(i)+"/FS");
-								cacheFS.put(new Integer(i),remote);
-							} catch (MalformedURLException e1) {
-								
-								e1.printStackTrace();
-							} catch (RemoteException e1) {
-								
-								e1.printStackTrace();
-							} catch (NotBoundException e1) {
-								
-								e1.printStackTrace();
-							}
-							
-							//TODO replica the update!!
-						}
-					else //get the new object from rmi registry
-						try {
-							System.out.println("asking peers for " + i + " getting "+ peers.get(i));
-							remote = (FS) Naming.lookup(peers.get(i)+"/FS");
-							cacheFS.put(new Integer(i),remote);
-						} catch (MalformedURLException e1) {
-							
-							e1.printStackTrace();
-						} catch (RemoteException e1) {
-							
-							e1.printStackTrace();
-						} catch (NotBoundException e1) {
-							
-							e1.printStackTrace();
-						}
-					
-					
-					try {
-						//i will try to recall the method on the new retrieved object
-						remote.put(filename, obj);
-						s.deleteInProcessing(filename);
-						return;
-					} catch (RemoteException e)  {
-						
-						//no thing to do, we will try to the next candidate
-					}
-					
-				}
-				
-			} else if (hash ==myid) {
-				try {
-					String[] all=s.findAllinStorage(filename);
-					if (all.length == 0) {
-						//case new insertion;
-						String c = "1v";
-						for (int z=0; z<k; z++ )
-							c+="0v";   //NOTE: will create a lot of garbage for large k, but normally k is small
-						myN2N.put(filename, obj, c);
-						
-					} else {
-						//FIXME update only the first clock...
-						int[] vc=getClock(all[0].substring(all[0].indexOf('.') +1, all[0].length()));
-						vc[0]++;
-						myN2N.put(filename, obj, ClockToString(vc));
-						s.deleteInStorage(all[0]);
-						all=null;
-						vc=null;
-					}
-					
-					s.deleteInProcessing(filename);
-					
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					return;
-				} 
-				
-				
-			} else {
-				//replica case
-				try {
-					String[] all=s.findAllinReplica(filename);
-					if (all.length == 0) {
-						//case new insertion;
-						//TODO fix as the isReplica Function!!!
-						String c="";
-						for (int z=hash; z<k; z++ )
-							c+="0v";
-						for (int z=0; z<k; z++ )
-							c+="0v";   //NOTE: will create a lot of garbage for large k, but normally k is small
-						myN2N.put(filename, obj, c);
-						
-					} else {
-						//FIXME update only the first clock...
-						int[] vc=getClock(all[0].substring(all[0].indexOf('.') +1, all[0].length()));
-						int idx=1;
-						for (int x=(hash+1) %n; x!=myid; x=(x+1)%n) {
-							idx++;
-						}
-						vc[idx]++;
-						myN2N.put(filename, obj, ClockToString(vc));
-						s.deleteInReplica(all[0]);
-						all=null;
-						vc=null;
-					}
-					
-					s.deleteInProcessing(filename);
-					
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					return;
-				} 
-				
-			}
+			firstTimeProcessing(filename);
 			
 			
 		}
 	}
 
-	private String ClockToString(int[] vc) {
-		String c="";
-		for (int i : vc) {
-			c+= new Integer(i).toString() + "v"; //BAD: LOT OF GARBAGE
+	private void firstTimeProcessing(String filename) {
+		int hash = Utility.getHash(filename,n);
+		Serializable obj;
+		try {
+			obj= s.readProcessing(filename);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			return;
+		} 
+		
+		
+		if( (hash != myid) && ! Utility.isReplica(hash,n, k, myid)) {
+			// CASE1: IS NOT FOR ME
+			tryToPutInMasterOrReplica(filename, hash, obj);
+		} else if (hash ==myid) {
+			//CASE2: IS FOR MY STORAGE
+			putInMyStorage(filename, obj); 
+		} else {
+			//CASE3: IS FOR MY  REPLICA
+			putInMyReplica(filename, hash, obj); 
+			
 		}
-		return c;
+		return;
 	}
+
+	private void putInMyReplica(String filename, int hash, Serializable obj) {
+		try {
+			//FIXME select max of my id
+			String[] all=s.findAllinReplica(filename);
+			if (all.length == 0) {
+				//case new insertion;
+				//TODO fix as the isReplica Function!!!
+				int idx=1;
+				for (int x=(hash+1) %n; x!=myid; x=(x+1)%n) {
+					idx++;
+				}
+				String c="";
+				for (int z=0; z<idx-1; z++ )
+					c+="0v";
+				c+="1v";
+				for (int z=idx; z<k; z++ )
+					c+="0v";   //NOTE: will create a lot of garbage for large k, but normally k is small
+				myN2N.put(filename, obj, c);
+				
+			} else {
+				//FIXME update only the first clock...
+				int[] vc=getClock(all[0].substring(all[0].indexOf('.') +1, all[0].length()));
+				int idx=1;
+				for (int x=(hash+1) %n; x!=myid; x=(x+1)%n) {
+					idx++;
+				}
+				vc[idx]++;
+				myN2N.put(filename, obj, Utility.ClockToString(vc));
+				s.deleteInReplica(all[0]);
+				all=null;
+				vc=null;
+			}
+			
+			s.deleteInProcessing(filename);
+			
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+	}
+
+	private void putInMyStorage(String filename, Serializable obj) {
+		try {
+			String[] all=s.findAllinStorage(filename);
+			if (all.length == 0) {
+				//case new insertion;
+				String c = "1v";
+				for (int z=0; z<k; z++ )
+					c+="0v";   //NOTE: will create a lot of garbage for large k, but normally k is small
+				myN2N.put(filename, obj, c);
+				
+			} else {
+				//FIXME update only the first clock...
+				int[] vc=getClock(all[0].substring(all[0].indexOf('.') +1, all[0].length()));
+				vc[0]++;
+				myN2N.put(filename, obj, Utility.ClockToString(vc));
+				s.deleteInStorage(all[0]);
+				all=null;
+				vc=null;
+			}
+			
+			s.deleteInProcessing(filename);
+			
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+	}
+
+	private void tryToPutInMasterOrReplica(String filename, int hash,
+			Serializable obj) {
+		//ask to all node that can store the object
+		for (int i=hash; i!=(hash+k+1)%n; i=(i+1) %n ) {
+			FS remote=cacheFS.get(i); //FIXME if is null download a new object
+			
+			// i will  try to ask find the info in my node 
+			if (remote != null)
+				try {
+					//i will try to reuse the object if the connection is up
+					remote.put(filename, obj);
+					s.deleteInProcessing(filename);
+					return;
+				} catch (RemoteException e)  {
+					//like cache fault...
+					//get the new object from rmi registry
+					try {
+						remote = (FS) Naming.lookup(peers.get(i)+"/FS");
+						cacheFS.put(new Integer(i),remote);
+					} catch (MalformedURLException e1) {
+						
+						e1.printStackTrace();
+					} catch (RemoteException e1) {
+						
+						e1.printStackTrace();
+					} catch (NotBoundException e1) {
+						
+						e1.printStackTrace();
+					}
+					
+					//TODO replica the update!!
+				}
+			else //get the new object from rmi registry
+				try {
+					System.out.println("asking peers for " + i + " getting "+ peers.get(i));
+					remote = (FS) Naming.lookup(peers.get(i)+"/FS");
+					cacheFS.put(new Integer(i),remote);
+				} catch (MalformedURLException e1) {
+					
+					e1.printStackTrace();
+				} catch (RemoteException e1) {
+					
+					e1.printStackTrace();
+				} catch (NotBoundException e1) {
+					
+					e1.printStackTrace();
+				}
+			
+			
+			try {
+				//i will try to recall the method on the new retrieved object
+				remote.put(filename, obj);
+				s.deleteInProcessing(filename);
+				return;
+			} catch (RemoteException e)  {
+				
+				//no thing to do, we will try to the next candidate
+			}
+			
+		}
+	}
+
+	
 	
 }
