@@ -48,7 +48,9 @@ public class Deamon {
 		
 		String[] toProc = s.getAllProcessing();
 		// process all file
+		
 		for (String filename : toProc) {
+			System.out.println("PAD-FS: DEAMON: processing"  +filename);
 			if (! Utility.hasClock(filename) )
 				firstTimeProcessing(filename);
 			else
@@ -60,6 +62,7 @@ public class Deamon {
 	
 	
 	private void finishProcessing(String filename) {
+		System.out.println("PAD-FS: DEAMON: finish processing"  +filename);
 		String onlyName= filename.substring(0, filename.indexOf('.'));
 		String clock=filename.substring( filename.indexOf('.')+ 1 , filename.length());
 		int hash = Utility.getHash(onlyName,n);
@@ -81,6 +84,7 @@ public class Deamon {
 
 
 	private void firstTimeProcessing(String filename) {
+		System.out.println("PAD-FS: DEAMON: first time processing"  +filename);
 		int hash = Utility.getHash(filename,n);
 		Serializable obj;
 		try {

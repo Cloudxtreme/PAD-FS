@@ -49,6 +49,8 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 	
 	public void put(String key, Serializable value) throws RemoteException {
 		
+		System.out.println("PAD-FS: received FS.put of " + key);
+		
 		try {
 			s.writeProcessing(key, value); //can overwrite but it is ok!
 			new DeamonThread(d, false).start();
@@ -61,13 +63,13 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 	}
 
 	public Serializable[] get(String key) throws RemoteException {
-		int hash = key.hashCode() % n;
-		if (hash < 0)
-		    hash += n;
+		System.out.println("PAD-FS: received FS.get of " + key);
+		
+		int hash = Utility.getHash(key, n);
 		
 		if (hash== myid || Utility.isReplica(hash,n,k,myid)) {
 			// i will find the info in my node
-			
+			System.out.println("PAD-FS: asking " + key + " to local N2N");
 			Pair[] found = myN2N.get(key);
 			
 			Serializable[] output= new Serializable[found.length];
@@ -75,28 +77,34 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 				output[i]=found[i].getLeft();
 			}
 			
+			System.out.println("PAD-FS: FS.get: return "+ output.length + " values for " + key);
 			return output;
 		} else {
 			//error!!!
 			for (int i=hash; i!= (hash+k +1) %n; i=(i+1) %n ) {
+				System.out.println("PAD-FS: FS.get: trying to ask to "+ i + " responsable for " + key);
 				Node2Node remote=cacheN2N.get(i);
 				Pair[] found;
 				Serializable[] output;
 				
 				if (remote != null)// i will  try to ask find the info in my node
 					try {
+						System.out.println("PAD-FS: remote object is in cache, trying to reuse");
 						//i will try to reuse the object if the connection is up
 						found = remote.get(key);
 						output= new Serializable[found.length];
 						for (int j=0; j< found.length; j++) {
 							output[j]=found[j].getLeft();
 						}
+						System.out.println("PAD-FS: FS.get: return "+ output.length + " values for " + key + ", info by " + i);
 						return output;
 					
 					} catch (RemoteException e)  {
 					//like cache fault...
 					// get the new object from rmi registry
+					System.out.println("PAD-FS: remote object is not in cache");
 					try {
+						System.out.println("PAD-FS: getting new remote object from " + peers.get(i) + "/N2N");
 						remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
 						cacheN2N.put(new Integer(i),remote);
 					} catch (MalformedURLException e1) {
@@ -116,9 +124,10 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 					for (int j=0; j< found.length; j++) {
 						output[j]=found[j].getLeft();
 					}
+					System.out.println("PAD-FS: FS.get: return "+ output.length + " values for " + key + ", info by " + i);
 					return output;
 				} catch (RemoteException e)  {
-					
+					System.out.println("PAD-FS: cannot use remote object of node " + i);
 					//no thing to do, we will try to the next candidate
 				}
 				

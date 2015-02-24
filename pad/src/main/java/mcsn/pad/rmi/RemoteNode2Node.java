@@ -40,10 +40,8 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 	
 	public void put(String key, Serializable value, String clocks)
 			throws RemoteException {
-		
-		int hash = key.hashCode() % n;
-		if (hash < 0)
-		    hash += n;
+		System.out.println("PAD-FS: received N2N.put of " + key + "." + clocks);
+		int hash = Utility.getHash(key, n);
 		
 		//check if the file is really for me
 		if ((hash != myid)&&(! Utility.isReplica(hash,n,k,myid)))
@@ -143,9 +141,9 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 	 * */
 	public Pair[] get(String key) throws RemoteException {
 		
-		int hash = key.hashCode() % n;
-		if (hash < 0)
-		    hash += n;
+		System.out.println("PAD-FS: received N2N.get of " + key);
+		
+		int hash = Utility.getHash(key, n);
 		
 		if (hash == myid) {
 			String[] allVersion = s.findAllinStorage(key);
@@ -163,7 +161,7 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 					throw new RemoteException("cannot read " + v + " into Storage");
 				} 
 			}
-			
+			System.out.println("PAD-FS: N2N.get: return "+ output.length + " values for " + key );
 			return output;
 			
 		} else if(Utility.isReplica(hash,n,k,myid)) {
@@ -181,6 +179,7 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 					throw new RemoteException("cannot read " + v + " into Storage");
 				} 
 			}
+			System.out.println("PAD-FS: N2N.get: (from replica) return "+ output.length + " values for " + key );
 			return output;
 			
 		}
