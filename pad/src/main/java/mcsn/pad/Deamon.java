@@ -98,7 +98,7 @@ public class Deamon {
 		
 		if( (hash != myid) && ! Utility.isReplica(hash,n, k, myid)) {
 			// CASE1: IS NOT FOR ME
-			tryToPutInMasterOrReplica(filename, hash, obj);
+			tryToSendAway(filename, hash, obj);
 		} else if (hash ==myid) {
 			//CASE2: IS FOR MY STORAGE
 			putInMyStorage(filename, obj); 
@@ -192,7 +192,7 @@ public class Deamon {
 					idx++;
 				}
 				String c="";
-				for (int z=0; z<idx-1; z++ )
+				for (int z=0; z<idx; z++ )
 					c+="0v";
 				c+="1v";
 				for (int z=idx; z<k; z++ )
@@ -261,7 +261,7 @@ public class Deamon {
 		}
 	}
 
-	private void tryToPutInMasterOrReplica(String filename, int hash,
+	private void tryToSendAway(String filename, int hash,
 			Serializable obj) {
 		//ask to all node that can store the object
 		
