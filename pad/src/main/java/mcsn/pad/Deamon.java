@@ -50,11 +50,14 @@ public class Deamon {
 		// process all file
 		
 		for (String filename : toProc) {
-			System.out.println("PAD-FS: DEAMON: processing"  +filename);
-			if (! Utility.hasClock(filename) )
-				firstTimeProcessing(filename);
-			else
-			    finishProcessing(filename);
+			
+			if( s.existInProcessing(filename)) {
+				System.out.println("PAD-FS: DEAMON: processing"  +filename);
+				if (! Utility.hasClock(filename) )
+					firstTimeProcessing(filename);
+				else
+					finishProcessing(filename);
+			}
 		}
 	}
 
@@ -102,6 +105,7 @@ public class Deamon {
 		} else if (hash ==myid) {
 			//CASE2: IS FOR MY STORAGE
 			putInMyStorage(filename, obj); 
+			
 		} else {
 			//CASE3: IS FOR MY  REPLICA
 			putInMyReplica(filename, hash, obj); 
@@ -116,18 +120,38 @@ public class Deamon {
 			//ask to all node that can store the object
 			boolean synch_all=true;
 			for (int i=hash; i!=(hash+k+1)%n; i=(i+1) %n ) {
-				Node2Node remote=cacheN2N.get(i); 
-				// i will  try to ask find the info in my node 
-				if (remote != null)
-					try {
-						//i will try to reuse the object if the connection is up
-						remote.put(onlyname, obj, clock);
-					} catch (RemoteException e)  {
-						//like cache fault...
-						//get the new object from rmi registry
+				if (i != myid) {
+					Node2Node remote=cacheN2N.get(i); 
+					// i will  try to ask find the info in my node 
+					if (remote != null)
 						try {
+							//i will try to reuse the object if the connection is up
+							remote.put(onlyname, obj, clock);
+						} catch (RemoteException e)  {
+							//like cache fault...
+							//get the new object from rmi registry
+							try {
+								remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
+								cacheN2N.put(new Integer(i),remote);
+							} catch (MalformedURLException e1) {
+								synch_all=false;
+								e1.printStackTrace();
+							} catch (RemoteException e1) {
+								synch_all=false;
+								e1.printStackTrace();
+							} catch (NotBoundException e1) {
+								synch_all=false;
+								e1.printStackTrace();
+							}
+						
+							//TODO replica the update!!
+						}
+					else {//get the new object from rmi registry
+						try {
+							System.out.println("asking peers for " + i + " getting "+ peers.get(i));
 							remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
 							cacheN2N.put(new Integer(i),remote);
+							remote.put(onlyname, obj,clock);
 						} catch (MalformedURLException e1) {
 							synch_all=false;
 							e1.printStackTrace();
@@ -138,33 +162,16 @@ public class Deamon {
 							synch_all=false;
 							e1.printStackTrace();
 						}
-						
-						//TODO replica the update!!
-					}
-				else {//get the new object from rmi registry
-					try {
-						System.out.println("asking peers for " + i + " getting "+ peers.get(i));
-						remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
-						cacheN2N.put(new Integer(i),remote);
-					} catch (MalformedURLException e1) {
-						synch_all=false;
-						e1.printStackTrace();
-					} catch (RemoteException e1) {
-						synch_all=false;
-						e1.printStackTrace();
-					} catch (NotBoundException e1) {
-						synch_all=false;
-						e1.printStackTrace();
 					}
 				
 				
-					try {
+					/*try {
 						//i will try to recall the method on the new retrieved object
 						remote.put(onlyname, obj,clock);
 					} catch (RemoteException e)  {
 						synch_all=false;
 					//no thing to do, we will try to the next candidate
-					}
+					}*/
 				
 				}
 			}
@@ -186,7 +193,8 @@ public class Deamon {
 			String newClocks;
 			if (all.length == 0) {
 				//case new insertion;
-				//TODO fix as the isReplica Function!!!
+				
+				
 				int idx=1;
 				for (int x=(hash+1) %n; x!=myid; x=(x+1)%n) {
 					idx++;
@@ -214,9 +222,14 @@ public class Deamon {
 				all=null;
 				vc=null;
 			}
+			//TODO IF THE FILE IS PRESENT IN PROCESSING WITH A CLOCK, DELETE THE FILE WITH CLOCK, IF COMPATIBLE
 			
-			s.deleteInProcessing(filename);
-			s.writeProcessing(filename + "." + newClocks, obj); //uptade processing with clocks, will be removed after all replica update
+			String[] tosynchall = s.findAllinProcessing(filename);
+			s.writeProcessing(filename + "." + newClocks,  obj);
+			for ( String deleting : tosynchall ) 
+				s.deleteInProcessing(deleting);
+			
+			synch(filename, newClocks, hash, obj);
 			
 		} catch (RemoteException e) {
 			e.printStackTrace();
@@ -247,9 +260,15 @@ public class Deamon {
 				s.deleteInStorage(all[0]);
 				
 			}
+			//TODO IF THE FILE IS PRESENT IN PROCESSING WITH A CLOCK, DELETE THE FILE WITH CLOCK, IF COMPATIBLE
+			String[] tosynchall = s.findAllinProcessing(filename);
 			
-			s.deleteInProcessing(filename);
 			s.writeProcessing(filename + "." + newClocks,  obj); //uptade processing with clocks, will be removed after all replica update
+			//String[] tosynchall = s.findAllinProcessing(filename);
+			for ( String deleting : tosynchall ) 
+				s.deleteInProcessing(deleting);
+			
+			synch(filename, newClocks, Utility.getHash(filename, n), obj);
 			
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
@@ -299,6 +318,9 @@ public class Deamon {
 					System.out.println("asking peers for " + i + " getting "+ peers.get(i));
 					remote = (FS) Naming.lookup(peers.get(i)+"/FS");
 					cacheFS.put(new Integer(i),remote);
+					remote.put(filename, obj);
+					s.deleteInProcessing(filename);
+					return;
 				} catch (MalformedURLException e1) {
 					
 					e1.printStackTrace();
@@ -311,7 +333,7 @@ public class Deamon {
 				}
 			
 			
-			try {
+			/*try {
 				//i will try to recall the method on the new retrieved object
 				remote.put(filename, obj);
 				s.deleteInProcessing(filename);
@@ -319,7 +341,7 @@ public class Deamon {
 			} catch (RemoteException e)  {
 				
 				//no thing to do, we will try to the next candidate
-			}
+			}*/
 			
 		}
 	}

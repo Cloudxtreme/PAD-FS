@@ -107,6 +107,12 @@ public class Storage {
 		return out;
 	}
 	
+	
+	public boolean existInProcessing(String filename) {
+		File file = new File(ARCHIVE_PATH + "/Processing/" +filename );
+		return file.exists();
+	}
+	
 	public Serializable readStorage(String filename) throws IOException, ClassNotFoundException {
 		Serializable out =readFile(filename,ARCHIVE_PATH+"/Storage/");
 		System.out.println("PAD-FS: readed " +filename + "in Storage");
@@ -115,6 +121,10 @@ public class Storage {
 	
 	public String[] getAllProcessing() {
 	return getAllFile(ARCHIVE_PATH + "/Processing/");
+	}
+	
+	public String[] findAllinProcessing(String key) {
+		return getAllVersion(key, ARCHIVE_PATH + "/Processing/");
 	}
 	
 	public String[] findAllinStorage(String key) {
