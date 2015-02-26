@@ -211,6 +211,11 @@ public class Node {
 	public static void clientGet(String registry, String key ) throws MalformedURLException, RemoteException, NotBoundException {
 		FS fs = (FS) Naming.lookup( registry + "/FS"); 
 		Serializable[] all=fs.get(key);
+		if (all==null) {
+			System.out.println("PAD-CLIENT: not found");
+			return;
+		}
+			
 		for (Serializable s : all)
 			System.out.println("PAD-CLIENT: get " + key + " = " + (String) s );
 	}

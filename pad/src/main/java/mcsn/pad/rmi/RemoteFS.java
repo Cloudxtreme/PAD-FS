@@ -101,23 +101,38 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 					
 					} catch (RemoteException e)  {
 					//like cache fault...
-					// get the new object from rmi registry
-					System.out.println("PAD-FS: remote object is not in cache");
-					try {
-						System.out.println("PAD-FS: getting new remote object from " + peers.get(i) + "/N2N");
-						remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
-						cacheN2N.put(new Integer(i),remote);
-					} catch (MalformedURLException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (NotBoundException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+					// get the new object from rmi registry 
 					}
+				
+				System.out.println("PAD-FS: remote object is not in cache");
+				try {
+					System.out.println("PAD-FS: getting new remote object from " + peers.get(i) + "/N2N");
+					remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
+					cacheN2N.put(new Integer(i),remote);
+					found = remote.get(key);
+					output= new Serializable[found.length];
+					for (int j=0; j< found.length; j++) {
+						output[j]=found[j].getLeft();
+					}
+					System.out.println("PAD-FS: FS.get: return "+ output.length + " values for " + key + ", info by " + i);
+					return output;
+				} catch (RemoteException e1) {
+					e1.printStackTrace();
+						//return null;
+				}	catch (MalformedURLException e1) {
+					
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					//return null;
+				} catch (NotBoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+					//return null;
 				}
 				
 				
-				try {
+				
+				/*try {
 					//i will try to recall the method on the new retrieved object
 					found = remote.get(key);
 					output= new Serializable[found.length];
@@ -129,7 +144,7 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 				} catch (RemoteException e)  {
 					System.out.println("PAD-FS: cannot use remote object of node " + i);
 					//no thing to do, we will try to the next candidate
-				}
+				}*/
 				
 			}
 		}
