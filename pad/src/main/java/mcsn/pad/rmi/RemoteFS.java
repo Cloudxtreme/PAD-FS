@@ -33,7 +33,7 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 	
 	public RemoteFS(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,Node2Node> _n2n, HashMap<Integer,String> p
 			,Deamon _d) throws RemoteException {
-		super();
+		super(6000+_myid);
 		d=_d;
 		n=_n;
 		k=_k;

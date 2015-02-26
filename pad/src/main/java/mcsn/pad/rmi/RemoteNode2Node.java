@@ -21,7 +21,7 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 	private Storage s; //local storage
 	
 	public RemoteNode2Node(int _myid, int _n, int _k, Storage _s) throws RemoteException {
-		super();
+		super(6020+_myid);
 		n=_n;
 		k=_k;
 		myid=_myid;
