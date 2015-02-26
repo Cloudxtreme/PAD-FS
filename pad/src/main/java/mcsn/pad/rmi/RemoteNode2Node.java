@@ -187,4 +187,36 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 		return null;
 	}
 
+
+
+
+
+
+	@Override
+	public void deleteAllVersion(String filename) throws RemoteException {
+		String[] alltodelete = s.findAllinProcessing(filename);
+		for (String delete : alltodelete) {
+			if (!Utility.isToDelete(delete)) {
+				s.deleteInProcessing(delete);
+			}
+		}
+		
+		alltodelete = s.findAllinStorage(filename);
+		for (String delete : alltodelete) {
+	
+			s.deleteInStorage(delete);
+			
+		}
+		
+		alltodelete = s.findAllinReplica(filename);
+		for (String delete : alltodelete) {
+	
+			s.deleteInReplica(delete);
+			
+		}
+		
+	}
+
+
+
 }

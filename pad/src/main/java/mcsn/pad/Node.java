@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 //import java.util.Set;
 
+
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -85,6 +87,38 @@ public class Node {
 			}
     		return;
     	}
+    	
+    	if (args[0].equals("delete")) {
+    		try {
+				clientDelete(args[1],args[2]);
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NotBoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		return;
+    	}
+    	
+    	if (args[0].equals("finished")) {
+    		try {
+				finishedDelete(args[1],args[2]);
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NotBoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		return;
+    	}
     		
     	
     	MyName=args[1];
@@ -119,7 +153,22 @@ public class Node {
     }
 
     
-    public void setupRMI() throws RemoteException, MalformedURLException {
+    private static void clientDelete(String registry, String key) throws MalformedURLException, RemoteException, NotBoundException {
+    	FS fs = (FS) Naming.lookup( registry + "/FS");
+		fs.deleteAllVersion(key);
+		System.out.println("PAD-CLIENT: asked to delete al version of " + key );
+		
+	}
+
+
+	private static void finishedDelete(String registry, String key) throws MalformedURLException, RemoteException, NotBoundException {
+		FS fs = (FS) Naming.lookup( registry + "/FS");
+		System.out.println("PAD-CLIENT: deleting completed " + fs.deletingAllCompleted(key));
+		
+	}
+
+
+	public void setupRMI() throws RemoteException, MalformedURLException {
     	String myUrl=MySettings[0];
 		int port= Integer.parseInt(myUrl.substring(myUrl.indexOf(':') + 1, myUrl.length()));
 		System.out.println("PAD-FS: trying to create the registry");
@@ -168,8 +217,8 @@ public class Node {
     	
     	RemoteNode2Node myN2N = new RemoteNode2Node(myid, n, k, s);
     	cacheN2N.put(new Integer(myid), myN2N);
-    	Deamon d= new Deamon(myid, n, k, s, cacheN2N, cacheFS, peers, true);
-    	RemoteFS myFS = new RemoteFS(myid, n,  k, s, cacheN2N, peers,d,true);
+    	Deamon d= new Deamon(myid, n, k, s, cacheN2N, cacheFS, peers);
+    	RemoteFS myFS = new RemoteFS(myid, n,  k, s, cacheN2N, peers,d);
     	cacheFS.put(new Integer(myid), myFS);
     	
         // Bind this object instance to the name "HelloServer" 

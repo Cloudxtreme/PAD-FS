@@ -25,10 +25,10 @@ public class Deamon {
 	private Hashtable<Integer,FS> cacheFS; //cache of remote object
 	private HashMap<Integer,String> peers; //mapping id to registry Url
 	private Node2Node myN2N;
-	private boolean cache_disabled;
+	
 	
 	public Deamon(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,Node2Node> _n2n, Hashtable<Integer, FS> _fs, 
-			HashMap<Integer,String> p, boolean disabled) {
+			HashMap<Integer,String> p) {
 		n=_n;
 		k=_k;
 		myid=_myid;
@@ -37,7 +37,7 @@ public class Deamon {
 		cacheN2N=_n2n; 
 		myN2N=cacheN2N.get(myid);
 		cacheFS=_fs;
-		cache_disabled=disabled;
+		
 	}
 
 	
@@ -53,8 +53,15 @@ public class Deamon {
 		
 		for (String filename : toProc) {
 			
+			
 			if( s.existInProcessing(filename)) {
 				System.out.println("PAD-FS: DEAMON: processing"  +filename);
+				
+				if (Utility.isToDelete(filename)) {
+					tryToDeleteAll(filename);
+					return;
+				}
+				
 				if (! Utility.hasClock(filename) )
 					firstTimeProcessing(filename);
 				else
@@ -66,6 +73,86 @@ public class Deamon {
 	
 	
 	
+	private void tryToDeleteAll(String filename) {
+		//ask to all node that can store the object
+		String onlyName= filename.substring(0, filename.indexOf('.'));
+		boolean synch_all=true;
+		final int hash = Utility.getHash(onlyName, n);
+		for (int i=hash; i!=(hash+k+1)%n; i=(i+1) %n ) {
+			
+			if (i == myid ) {
+				
+				String[] alltodelete = s.findAllinProcessing( onlyName);
+				for (String delete : alltodelete) {
+					if (!Utility.isToDelete(delete)) {
+						s.deleteInProcessing(delete);
+					}
+				}
+				
+				alltodelete = s.findAllinStorage( onlyName);
+				for (String delete : alltodelete) {
+			
+					s.deleteInStorage(delete);
+					
+				}
+				
+				alltodelete = s.findAllinReplica(onlyName);
+				for (String delete : alltodelete) {
+			
+					s.deleteInReplica(delete);
+					
+				}
+			}
+			
+			if (i != myid) {
+				Node2Node remote=cacheN2N.get(i); 
+				// i will  try to ask find the info in my node 
+				if (remote != null )
+					try {
+						//i will try to reuse the object if the connection is up
+						remote.deleteAllVersion(onlyName);
+					} catch (RemoteException e)  {
+						
+					}
+				
+				
+				//get the new object from rmi registry
+				try {
+						System.out.println("asking peers for " + i + " getting "+ peers.get(i));
+						remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
+						cacheN2N.put(new Integer(i),remote);
+						remote.deleteAllVersion(onlyName);
+				} catch (MalformedURLException e1) {
+						synch_all=false;
+						e1.printStackTrace();
+				} catch (RemoteException e1) {
+						synch_all=false;
+						e1.printStackTrace();
+				} catch (NotBoundException e1) {
+						synch_all=false;
+						e1.printStackTrace();
+					}
+			
+			
+			}
+		}
+		
+		// i will delete on processing only if i finish the synch
+		if (synch_all)
+			s.deleteInProcessing(filename);
+			
+	
+	
+	}
+		
+	
+
+
+
+
+
+
+
 	private void finishProcessing(String filename) {
 		System.out.println("PAD-FS: DEAMON: finish processing"  +filename);
 		String onlyName= filename.substring(0, filename.indexOf('.'));
@@ -125,7 +212,7 @@ public class Deamon {
 				if (i != myid) {
 					Node2Node remote=cacheN2N.get(i); 
 					// i will  try to ask find the info in my node 
-					if (remote != null && !cache_disabled)
+					if (remote != null )
 						try {
 							//i will try to reuse the object if the connection is up
 							remote.put(onlyname, obj, clock);
@@ -292,7 +379,7 @@ public class Deamon {
 			FS remote=cacheFS.get(i); //FIXME if is null download a new object
 			
 			// i will  try to ask find the info in my node 
-			if (remote != null && !cache_disabled)
+			if (remote != null)
 				try {
 					//i will try to reuse the object if the connection is up
 					remote.put(filename, obj);

@@ -4,6 +4,15 @@ public class Utility {
 	
 	
 	
+	public static boolean isToDelete(String namefile) {
+		int separator=namefile.indexOf('.');
+		if (separator != -1)  {
+			return namefile.substring(separator +1, namefile.length()).equals("deleting");
+		}
+		return false;
+	}
+	
+	
 	/* returns true only if vc is a new compatible version of local_vc*/
 	public static boolean compatibleClocks(int[] vc_local, int[] vc, int k) {
 		boolean find=false;

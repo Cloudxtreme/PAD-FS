@@ -11,7 +11,9 @@ import mcsn.pad.Pair;
  */
 public interface Node2Node extends java.rmi.Remote {
 	/*like client api, plus info on the vector clock*/
-	void put(String key, Serializable value, String clocks) throws RemoteException;
-	Pair[] get(String key) throws RemoteException;
+	public void put(String key, Serializable value, String clocks) throws RemoteException;
+	public Pair[] get(String key) throws RemoteException;
+	public void deleteAllVersion(String filename) throws RemoteException;
 	
+
 }

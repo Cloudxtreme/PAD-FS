@@ -12,4 +12,11 @@ public interface FS extends java.rmi.Remote {
 			 * 	other nodes are recursively called
 			 * */
 			Serializable[] get(String key) throws RemoteException;
+			
+			
+			
+			public void deleteAllVersion(String key) throws RemoteException;
+			
+			public boolean deletingAllCompleted(String key) throws RemoteException;
+			
 }

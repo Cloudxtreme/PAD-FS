@@ -30,10 +30,10 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 	private HashMap<Integer,String> peers; //mapping id to registry Url
 	private Node2Node myN2N;
 	private Deamon d;
-	private boolean cache_disabled;
+	
 	
 	public RemoteFS(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,Node2Node> _n2n, HashMap<Integer,String> p
-			,Deamon _d, boolean disabled) throws RemoteException {
+			,Deamon _d) throws RemoteException {
 		super();
 		d=_d;
 		n=_n;
@@ -43,7 +43,7 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 		peers=p;
 		cacheN2N=_n2n; //FIXME if is used only here, it is useless to pass as argument into constructor
 		myN2N=cacheN2N.get(myid);
-		cache_disabled=disabled;
+		
 	}
 	
 	
@@ -61,6 +61,19 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 		}
 		
 		
+		
+	}
+	
+	
+	public void deleteAllVersion(String key) throws RemoteException {
+		System.out.println("PAD-FS:  received FS.DeleteAllVersion of " + key);
+		
+		try {
+			s.writeProcessing(key+".deleting", "delete"); 
+			new DeamonThread(d, false).start();
+		} catch (IOException e) {
+			throw new RemoteException("cannot write into processing");
+		}
 		
 	}
 
@@ -89,7 +102,7 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 				Pair[] found;
 				Serializable[] output;
 				
-				if (remote != null && !cache_disabled)// i will  try to ask find the info in my node
+				if (remote != null)// i will  try to ask find the info in my node
 					try {
 						System.out.println("PAD-FS: remote object is in cache, trying to reuse");
 						//i will try to reuse the object if the connection is up
@@ -156,4 +169,14 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 		
 	}
 
+	
+	
+	
+	
+	public boolean deletingAllCompleted(String key) throws RemoteException {
+		return !s.existInProcessing(key + ".deleting");
+
+	}
+	
+	
 }
