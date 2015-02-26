@@ -168,8 +168,8 @@ public class Node {
     	
     	RemoteNode2Node myN2N = new RemoteNode2Node(myid, n, k, s);
     	cacheN2N.put(new Integer(myid), myN2N);
-    	Deamon d= new Deamon(myid, n, k, s, cacheN2N, cacheFS, peers);
-    	RemoteFS myFS = new RemoteFS(myid, n,  k, s, cacheN2N, peers,d);
+    	Deamon d= new Deamon(myid, n, k, s, cacheN2N, cacheFS, peers, true);
+    	RemoteFS myFS = new RemoteFS(myid, n,  k, s, cacheN2N, peers,d,true);
     	cacheFS.put(new Integer(myid), myFS);
     	
         // Bind this object instance to the name "HelloServer" 

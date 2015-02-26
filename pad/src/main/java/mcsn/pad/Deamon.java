@@ -25,9 +25,10 @@ public class Deamon {
 	private Hashtable<Integer,FS> cacheFS; //cache of remote object
 	private HashMap<Integer,String> peers; //mapping id to registry Url
 	private Node2Node myN2N;
+	private boolean cache_disabled;
 	
 	public Deamon(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,Node2Node> _n2n, Hashtable<Integer, FS> _fs, 
-			HashMap<Integer,String> p) {
+			HashMap<Integer,String> p, boolean disabled) {
 		n=_n;
 		k=_k;
 		myid=_myid;
@@ -36,6 +37,7 @@ public class Deamon {
 		cacheN2N=_n2n; 
 		myN2N=cacheN2N.get(myid);
 		cacheFS=_fs;
+		cache_disabled=disabled;
 	}
 
 	
@@ -123,14 +125,14 @@ public class Deamon {
 				if (i != myid) {
 					Node2Node remote=cacheN2N.get(i); 
 					// i will  try to ask find the info in my node 
-					if (remote != null)
+					if (remote != null && !cache_disabled)
 						try {
 							//i will try to reuse the object if the connection is up
 							remote.put(onlyname, obj, clock);
 						} catch (RemoteException e)  {
 							//like cache fault...
 							//get the new object from rmi registry
-							try {
+							/*try {
 								remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
 								cacheN2N.put(new Integer(i),remote);
 							} catch (MalformedURLException e1) {
@@ -142,27 +144,29 @@ public class Deamon {
 							} catch (NotBoundException e1) {
 								synch_all=false;
 								e1.printStackTrace();
-							}
+							}*/
 						
 							//TODO replica the update!!
 						}
-					else {//get the new object from rmi registry
-						try {
+					
+					
+					//get the new object from rmi registry
+					try {
 							System.out.println("asking peers for " + i + " getting "+ peers.get(i));
 							remote = (Node2Node) Naming.lookup(peers.get(i)+"/N2N");
 							cacheN2N.put(new Integer(i),remote);
 							remote.put(onlyname, obj,clock);
-						} catch (MalformedURLException e1) {
+					} catch (MalformedURLException e1) {
 							synch_all=false;
 							e1.printStackTrace();
-						} catch (RemoteException e1) {
+					} catch (RemoteException e1) {
 							synch_all=false;
 							e1.printStackTrace();
-						} catch (NotBoundException e1) {
+					} catch (NotBoundException e1) {
 							synch_all=false;
 							e1.printStackTrace();
 						}
-					}
+					
 				
 				
 					/*try {
@@ -288,7 +292,7 @@ public class Deamon {
 			FS remote=cacheFS.get(i); //FIXME if is null download a new object
 			
 			// i will  try to ask find the info in my node 
-			if (remote != null)
+			if (remote != null && !cache_disabled)
 				try {
 					//i will try to reuse the object if the connection is up
 					remote.put(filename, obj);
@@ -297,7 +301,7 @@ public class Deamon {
 				} catch (RemoteException e)  {
 					//like cache fault...
 					//get the new object from rmi registry
-					try {
+					/*try {
 						remote = (FS) Naming.lookup(peers.get(i)+"/FS");
 						cacheFS.put(new Integer(i),remote);
 					} catch (MalformedURLException e1) {
@@ -309,11 +313,11 @@ public class Deamon {
 					} catch (NotBoundException e1) {
 						
 						e1.printStackTrace();
-					}
+					}*/
 					
 					//TODO replica the update!!
 				}
-			else //get the new object from rmi registry
+			 //get the new object from rmi registry
 				try {
 					System.out.println("asking peers for " + i + " getting "+ peers.get(i));
 					remote = (FS) Naming.lookup(peers.get(i)+"/FS");
