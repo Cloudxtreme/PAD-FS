@@ -1,12 +1,12 @@
 package mcsn.pad;
 
 
-public class DeamonThread extends Thread {
+public class DaemonThread extends Thread {
 	
-	Deamon d;
+	Daemon d;
 	boolean background;
 	
-	public DeamonThread(Deamon _d, boolean _background) {
+	public DaemonThread(Daemon _d, boolean _background) {
 		d=_d;
 		background=_background;
 	}

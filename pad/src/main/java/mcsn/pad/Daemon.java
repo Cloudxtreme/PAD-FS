@@ -15,7 +15,7 @@ import mcsn.pad.rmi.Node2Node;
 import mcsn.pad.storage.Storage;
 import mcsn.pad.Utility;
 
-public class Deamon {
+public class Daemon {
 	
 	private int myid; // my id
 	private int n; // number of peers
@@ -27,7 +27,7 @@ public class Deamon {
 	private Node2Node myN2N;
 	
 	
-	public Deamon(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,Node2Node> _n2n, Hashtable<Integer, FS> _fs, 
+	public Daemon(int _myid, int _n, int _k, Storage _s, Hashtable<Integer,Node2Node> _n2n, Hashtable<Integer, FS> _fs, 
 			HashMap<Integer,String> p) {
 		n=_n;
 		k=_k;

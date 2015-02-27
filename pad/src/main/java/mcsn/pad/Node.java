@@ -217,7 +217,7 @@ public class Node {
     	
     	RemoteNode2Node myN2N = new RemoteNode2Node(myid, n, k, s);
     	cacheN2N.put(new Integer(myid), myN2N);
-    	Deamon d= new Deamon(myid, n, k, s, cacheN2N, cacheFS, peers);
+    	Daemon d= new Daemon(myid, n, k, s, cacheN2N, cacheFS, peers);
     	RemoteFS myFS = new RemoteFS(myid, n,  k, s, cacheN2N, peers,d);
     	cacheFS.put(new Integer(myid), myFS);
     	
@@ -228,7 +228,7 @@ public class Node {
        
         
         
-		new DeamonThread(d, true).start(); 
+		new DaemonThread(d, true).start(); 
 
     }
 	
