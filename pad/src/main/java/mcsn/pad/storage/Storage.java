@@ -177,6 +177,7 @@ public class Storage {
 	}
 	
 	private synchronized void deleteFile(String filename, String path) {
+		System.out.println("PAD-FS: Deleting " +filename + path);
 		File f= new File(path+filename);
 		f.delete();
 		return;
