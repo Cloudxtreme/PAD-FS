@@ -1,2 +1,2 @@
 PAD-FS
-A Distributed, Eventually consistent, FileSystem. Resilient to node failure or network partition. 
+A Distributed, Eventually consistent, FileSystem. Resistant to node failure or network partition. 

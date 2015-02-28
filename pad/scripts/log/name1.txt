@@ -1,0 +1,14 @@
+PAD-FS: trying to create the registry
+registry UP :)
+PAD-FS: Archive /tmp/node1_storage is created!
+PAD-FS: Storage /tmp/node1_storage is created!
+PAD-FS: Replica /tmp/node1_storage is created!
+PAD-FS: Processing /tmp/node1_storage is created!
+PAD-FS: storage is ready
+PAD-FS: DEAMON THREAD SLEEPING
+PAD-FS: DEAMON IS PROCESSING
+PAD-FS: DEAMON THREAD SLEEPING
+PAD-FS: DEAMON IS PROCESSING
+PAD-FS: DEAMON THREAD SLEEPING
+PAD-FS: DEAMON IS PROCESSING
+PAD-FS: DEAMON THREAD SLEEPING
