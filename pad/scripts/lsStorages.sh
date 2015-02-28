@@ -1,6 +1,6 @@
 #! /bin/bash
 
-for i in {1..7}
+for i in {1..10}
 do
 	echo "--------------------------------------------"
 	echo "Storage"$i
