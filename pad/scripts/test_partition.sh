@@ -1,6 +1,6 @@
 #! /bin/bash
 # Author: Dario Balinzo
-# Testing Node Failure
+# Testing Network partition
 
 #deploy a filesystem made up by 10 nodes, clean the old storages if present
 echo "PAD-TEST: cleaning folders and starting nodes"
