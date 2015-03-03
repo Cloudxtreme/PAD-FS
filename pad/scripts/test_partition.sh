@@ -162,17 +162,21 @@ if [ "$expected" != "$out" ]; then
 	echo $out
 	exit 1
 fi
-java -jar ../target/pad-0.0.1-SNAPSHOT.jar get //localhost:2004 pad
+
 out=$(ls  -C "/tmp/node10_storage/Storage")
-expected="pad.1v1v0v	pad.2v0v0v"
-echo $out
-if [ "$expected" != "$out" ]; then
+java -jar ../target/pad-0.0.1-SNAPSHOT.jar get //localhost:2004 pad > out
+echo "PAD-CLIENT: get pad = value PAD-CLIENT: get pad = newvalue " > tmp1
+echo "PAD-CLIENT: get pad = newvalue" > tmp2
+echo "PAD-CLIENT: get pad = value" >> tmp2
+if  ! diff out tmp2; then
 	#killing all matching process
 	pkill -f pad-0.0.1-SNAPSHOT
 	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $expected
+	echo $ex1"a"
+	echo "or"
+	echo $ex2"a"
 	echo "OBTAINED:"
-	echo $out
+	echo $out"a"
 	exit 1
 fi
 
