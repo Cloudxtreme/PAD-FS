@@ -165,20 +165,19 @@ fi
 
 out=$(ls  -C "/tmp/node10_storage/Storage")
 java -jar ../target/pad-0.0.1-SNAPSHOT.jar get //localhost:2004 pad > out
-echo "PAD-CLIENT: get pad = value PAD-CLIENT: get pad = newvalue " > tmp1
+echo "PAD-CLIENT: get pad = value" > tmp1
+echo "PAD-CLIENT: get pad = newvalue" >> tmp1
 echo "PAD-CLIENT: get pad = newvalue" > tmp2
 echo "PAD-CLIENT: get pad = value" >> tmp2
-if  ! diff out tmp2; then
+
+if  ! diff out tmp2 && ! diff out tmp1; then
 	#killing all matching process
 	pkill -f pad-0.0.1-SNAPSHOT
-	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $ex1"a"
-	echo "or"
-	echo $ex2"a"
-	echo "OBTAINED:"
-	echo $out"a"
+	echo "PAD-TEST: FAILURE: out file is not equals to tmp1 or tmp2"
 	exit 1
 fi
+
+rm -f tmp1 tmp2 out
 
 echo ""
 echo ""

@@ -16,11 +16,11 @@ sleep 3
 
 #using the file system without fault
 echo "PAD-TEST: using the file system  (putting stuff) without fault"
-for i in {1..100}
+for i in {1..11}
 do
-	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2001 pad$i asd
-	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2006 pippo$i asd
-	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2008 abc$i asd
+	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2001 pad$i asd$i
+	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2006 pippo$i asd$i
+	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2008 abc$i asd$i
 done
 sleep 15
 
@@ -42,7 +42,7 @@ pkill -f name10
 
 echo "PAD-TEST: insertion"
 
-for i in {1..100}
+for i in {1..11}
 do
 	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2001 pad$i asd
 done
@@ -50,16 +50,16 @@ sleep 15
 
 echo "PAD-TEST: simulating partition A=[1,2,3] stopped, B=[4,5,6,7,8,9,10] can go"
 pkill -f pad-0.0.1-SNAPSHOT 
-java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name4 &>log/name4.txt  &
-java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name5 &>log/name5.txt  &
-java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name6 &>log/name6.txt  &
-java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name7 &>log/name7.txt  &
-java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name8 &>log/name8.txt  &
-java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name9 &>log/name9.txt  &
-java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name10 &>log/name10.txt  &
+java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name4 &>log/_name4.txt  &
+java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name5 &>log/_name5.txt  &
+java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name6 &>log/_name6.txt  &
+java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name7 &>log/_name7.txt  &
+java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name8 &>log/_name8.txt  &
+java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name9 &>log/_name9.txt  &
+java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name10 &>log/_name10.txt  &
 sleep 4
 
-for i in {1..100}
+for i in {1..11}
 do
 	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2008 abc$i asd
 done
@@ -70,139 +70,64 @@ pkill -f pad-0.0.1-SNAPSHOT
 echo "PAD-TEST: simulating partition resolving"
 for i in {1..10}
 do
-	java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name$i &>log/name$i.txt  &
+	java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name$i &>log/__name$i.txt  &
 done
 
 echo "PAD-TEST: waiting synch"
 sleep 20
-out=$(find /tmp/node1_storage/ -type f | wc -l)
-expected=91
-echo $out
-if [[ $expected -ne $out ]]; then
-	#killing all matching process
-	pkill -f pad-0.0.1-SNAPSHOT
-	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $expected
-	echo "OBTAINED:"
-	echo $out
-	exit 1
-fi
-out=$(find /tmp/node2_storage/ -type f | wc -l)
-expected=90
-echo $out
-if [[ $expected -ne $out ]]; then
-	#killing all matching process
-	pkill -f pad-0.0.1-SNAPSHOT
-	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $expected
-	echo "OBTAINED:"
-	echo $out
-	exit 1
-fi
-out=$(find /tmp/node3_storage/ -type f | wc -l)
-expected=92
-echo $out
-if [[ $expected -ne $out ]]; then
-	#killing all matching process
-	pkill -f pad-0.0.1-SNAPSHOT
-	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $expected
-	echo "OBTAINED:"
-	echo $out
-	exit 1
-fi
-out=$(find /tmp/node4_storage/ -type f | wc -l)
-expected=90
-echo $out
-if [[ $expected -ne $out ]]; then
-	#killing all matching process
-	pkill -f pad-0.0.1-SNAPSHOT
-	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $expected
-	echo "OBTAINED:"
-	echo $out
-	exit 1
-fi
-out=$(find /tmp/node5_storage/ -type f | wc -l)
-expected=89
-echo $out
-if [[ $expected -ne $out ]]; then
-	#killing all matching process
-	pkill -f pad-0.0.1-SNAPSHOT
-	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $expected
-	echo "OBTAINED:"
-	echo $out
-	exit 1
-fi
-out=$(find /tmp/node6_storage/ -type f | wc -l)
-expected=90
-echo $out
-if [[ $expected -ne $out ]]; then
-	#killing all matching process
-	pkill -f pad-0.0.1-SNAPSHOT
-	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $expected
-	echo "OBTAINED:"
-	echo $out
-	exit 1
-fi
-out=$(find /tmp/node7_storage/ -type f | wc -l)
-expected=89
-echo $out
-if [[ $expected -ne $out ]]; then
-	#killing all matching process
-	pkill -f pad-0.0.1-SNAPSHOT
-	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $expected
-	echo "OBTAINED:"
-	echo $out
-	exit 1
-fi
-out=$(find /tmp/node8_storage/ -type f | wc -l)
-expected=90
-echo $out
-if [[ $expected -ne $out ]]; then
-	#killing all matching process
-	pkill -f pad-0.0.1-SNAPSHOT
-	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $expected
-	echo "OBTAINED:"
-	echo $out
-	exit 1
-fi
-out=$(find /tmp/node9_storage/ -type f | wc -l)
-expected=91
-echo $out
-if [[ $expected -ne $out ]]; then
-	#killing all matching process
-	pkill -f pad-0.0.1-SNAPSHOT
-	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $expected
-	echo "OBTAINED:"
-	echo $out
-	exit 1
-fi
-out=$(find /tmp/node10_storage/ -type f | wc -l)
-expected=95
-echo $out
-if [[ $expected -ne $out ]]; then
-	#killing all matching process
-	pkill -f pad-0.0.1-SNAPSHOT
-	echo "PAD-TEST: FAILURE EXPECTED:"
-	echo $expected
-	echo "OBTAINED:"
-	echo $out
-	exit 1
-fi
 
-
-pkill -f pad-0.0.1-SNAPSHOT 
-for i in {1..10}
+for i in {1..11}
 do
-	rm -fr "/tmp/node"$i"_storage"
+	out=$(java -jar ../target/pad-0.0.1-SNAPSHOT.jar get //localhost:2007 pad$i )
+	expected="PAD-CLIENT: get pad"$i" = asd"
+	echo $out
+	if [ "$expected" != "$out" ]; then
+		#killing all matching process
+		pkill -f pad-0.0.1-SNAPSHOT
+		echo "PAD-TEST: FAILURE EXPECTED:"
+		echo $expected
+		echo "OBTAINED:"
+		echo $out
+		exit 1
+	fi
+	
+	out=$(java -jar ../target/pad-0.0.1-SNAPSHOT.jar get //localhost:2007 pippo$i )
+	expected="PAD-CLIENT: get pippo"$i" = asd"$i
+	echo $out
+	if [ "$expected" != "$out" ]; then
+		#killing all matching process
+		pkill -f pad-0.0.1-SNAPSHOT
+		echo "PAD-TEST: FAILURE EXPECTED:"
+		echo $expected
+		echo "OBTAINED:"
+		echo $out
+		exit 1
+	fi
+	
+	out=$(java -jar ../target/pad-0.0.1-SNAPSHOT.jar get //localhost:2007 abc$i )
+	expected="PAD-CLIENT: get abc"$i" = asd"
+	echo $out
+	if [ "$expected" != "$out" ]; then
+		#killing all matching process
+		pkill -f pad-0.0.1-SNAPSHOT
+		echo "PAD-TEST: FAILURE EXPECTED:"
+		echo $expected
+		echo "OBTAINED:"
+		echo $out
+		exit 1
+	fi
 done
 
+echo "deleting storage"
+for i in {1..10}
+do
+	echo "deleting node"$i
+	#rm -fr "/tmp/node"$i"_storage"
+done
+
+
+#killing all matching process
+pkill -f pad-0.0.1-SNAPSHOT 
 
 echo ""
 echo ""
