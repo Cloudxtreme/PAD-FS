@@ -81,7 +81,15 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 					}
 					return;
 				} 
+				
+				if (Utility.compatibleClocks(vc, vc_local,k)) {
+					System.out.println("PAD-FS: discarded value of " + key + " , already present more updated version");
+					return;
+				}
+				
 			}
+			
+			
 			
 			//insert also if the clock are not compatibles, but not deleting old versions
 			try {
@@ -117,6 +125,11 @@ public class RemoteNode2Node extends UnicastRemoteObject implements Node2Node {
 					} catch (IOException e) {
 						throw new RemoteException("cannot update file " + key + " with new clock " + clocks );
 					}
+					return;
+				}
+				
+				if (Utility.compatibleClocks(vc, vc_local,k)) {
+					System.out.println("PAD-FS: discarded value of " + key + " , already present more updated version");
 					return;
 				}
 			}
