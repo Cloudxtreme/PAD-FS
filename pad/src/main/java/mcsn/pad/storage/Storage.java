@@ -31,9 +31,18 @@ public class Storage {
 		}
 		
 		public boolean accept(File dir, String name) {
-			if (name.startsWith(starting))
-				return true;
-			else
+			if (name.startsWith(starting)) {
+				
+				int len_name= name.length();
+				int len_str=starting.length();
+				
+				if (len_str == len_name)
+					return true;
+				if (len_str < len_name && name.charAt(len_str)=='.')
+					return true;
+				
+				return false;
+			} else
 				return false;
 		}
 	}

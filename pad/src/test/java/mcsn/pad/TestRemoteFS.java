@@ -91,7 +91,7 @@ public class TestRemoteFS {
 		
 		
 			//emulating deamon
-			s.writeStorage(name + "1v0v0v0v", message);
+			s.writeStorage(name + ".1v0v0v0v", message);
 			
 			Serializable[] out=  rfs.get(name);
 			System.out.println(out.length);

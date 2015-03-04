@@ -225,10 +225,10 @@ public class StorageTest {
 		String message = "Hello world";
 		try {
 			
-			s.writeStorage(name + "a", message);
-			s.writeStorage(name + "a1", message);
-			s.writeStorage(name + "a2", message);
-			s.writeStorage(name + "a3", message);
+			s.writeStorage(name + ".a", message);
+			s.writeStorage(name + ".a1", message);
+			s.writeStorage(name + ".a2", message);
+			s.writeStorage(name + ".a3", message);
 			s.writeStorage("d"+name, message);
 			s.writeStorage("e"+name, message);
 			out=s.findAllinStorage(name);
@@ -238,15 +238,15 @@ public class StorageTest {
 		}
 		int i=4;
 		for (String s1: out) {
-			if (s1.equals(name + "a") || s1.equals(name + "a1")  || s1.equals(name + "a2") ||
-					s1.equals( name + "a3") );
+			if (s1.equals(name + ".a") || s1.equals(name + ".a1")  || s1.equals(name + ".a2") ||
+					s1.equals( name + ".a3") );
 				i--;
 		}
 		assertEquals(i,0);
-		s.deleteInStorage(name + "a");
-		s.deleteInStorage(name + "a1");
-		s.deleteInStorage(name + "a2");
-		s.deleteInStorage(name + "a3");
+		s.deleteInStorage(name + ".a");
+		s.deleteInStorage(name + ".a1");
+		s.deleteInStorage(name + ".a2");
+		s.deleteInStorage(name + ".a3");
 		s.deleteInStorage("d"+name);
 		s.deleteInStorage("e"+name);
 		out=s.findAllinStorage(name);
@@ -265,10 +265,10 @@ public class StorageTest {
 		String message = "Hello world";
 		try {
 			
-			s.writeReplica(name + "a", message);
-			s.writeReplica(name + "a1", message);
-			s.writeReplica(name + "a2", message);
-			s.writeReplica(name + "a3", message);
+			s.writeReplica(name + ".a", message);
+			s.writeReplica(name + ".a1", message);
+			s.writeReplica(name + ".a2", message);
+			s.writeReplica(name + ".a3", message);
 			s.writeReplica("d"+name, message);
 			s.writeReplica("e"+name, message);
 			out=s.findAllinReplica(name);
@@ -278,8 +278,8 @@ public class StorageTest {
 		}
 		int i=4;
 		for (String s1: out) {
-			if (s1.equals(name + "a") || s1.equals(name + "a1")  || s1.equals(name + "a2") ||
-					s1.equals( name + "a3") );
+			if (s1.equals(name + ".a") || s1.equals(name + ".a1")  || s1.equals(name + ".a2") ||
+					s1.equals( name + ".a3") );
 				i--;
 		}
 		assertEquals(i,0);
