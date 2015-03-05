@@ -1,6 +1,5 @@
 # PAD-FS
 
-A Distributed, Eventually consistent, FileSystem. 
 
 
 How to install:
@@ -12,43 +11,28 @@ cd PAD-FS/pad
 mvn clean package
 ```
 
-How to run:
-==========
+How to run the tests:
+=====================
+
+The scripts allow to deploy a 10 nodes filesystem in a pseudo distributed mode.
+
+This script will simulate insertion with some node failure and restarting:
+
 ```
 cd script
-./startNodes.sh
+./test_node_failure.sh
+```
+
+to test network partition, in scripts folder run:
+
+ ```
+./test_partition.sh
 ```
 
 
-How to stop:
-=============
-in script folder
-```
-./stopNodes.sh
-```
+to test network partition and node failure whit many insertion:
 
-
-How to list all states:
-=======================
-```
-in script folder
-./lsStorages.sh
+ ```
+./test_many_insertions.sh
 ```
 
-
-
-How to put:
-==========
-in script folder
-```
- java -jar ../target/pad-0.0.1-SNAPSHOT.jar put "urlregistry" "key" "value"
-
-```
-
-How to get:
-==========
-in script folder
-```
-java -jar ../target/pad-0.0.1-SNAPSHOT.jar get "urlregistry" "key" 
-
-```
