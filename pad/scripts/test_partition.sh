@@ -2,6 +2,9 @@
 # Author: Dario Balinzo
 # Testing Network partition
 
+#killing all matching process (already running instance are closed)
+pkill -f pad-0.0.1-SNAPSHOT 
+
 #deploy a filesystem made up by 10 nodes, clean the old storages if present
 echo "PAD-TEST: cleaning folders and starting nodes"
 for i in {1..10}
@@ -12,13 +15,13 @@ done
 
 #wait for ending of setup
 echo "PAD-TEST: waiting nodes startup"
-sleep 2 
+sleep 4 
 
 #using the file system without fault
 echo "PAD-TEST: using the file system  (putting stuff) without fault"
 java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2000 pippo asd
 java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2001 pad asd
-sleep 1
+sleep 4
 
 #to create a network partition  A=[1,2,3] vs B=[4,5,6,7,8,9,10]
 # first A is execute with B stopped
@@ -62,7 +65,7 @@ if [ "$expected" != "$out" ]; then
 	echo $out
 	exit 1
 fi
-sleep 1
+sleep 4
 echo "PAD-TEST: Storage3 with new value of pippo"
 out=$(ls  "/tmp/node3_storage/Storage")
 expected="pippo.2v0v0v"
@@ -124,7 +127,7 @@ java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name7 &>log/name7.txt  
 java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name8 &>log/name8.txt  &
 java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name9 &>log/name9.txt  &
 java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name10 &>log/name10.txt  &
-sleep 3
+sleep 6
 
 echo "PAD-TEST: is possible to update pad:"
 out=$(java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2007 pad value)
@@ -149,7 +152,7 @@ do
 done
 
 echo "PAD-TEST: waiting synch"
-sleep 13
+sleep 15
 out=$(java -jar ../target/pad-0.0.1-SNAPSHOT.jar get //localhost:2004 pippo)
 expected="PAD-CLIENT: get pippo = newvalue"
 echo $out
@@ -191,7 +194,7 @@ echo "PAD-TEST: stopping node 10, responsabile of pad"
 pkill -f name10
 echo "PAD-TEST: trying to delete all versions of pad"
 java -jar ../target/pad-0.0.1-SNAPSHOT.jar delete //localhost:2004 pad
-sleep 1
+sleep 3
 echo "PAD-TEST: calling method is finished delete"
 
 out=$(java -jar ../target/pad-0.0.1-SNAPSHOT.jar finished //localhost:2004 pad)
@@ -208,7 +211,7 @@ if [ "$expected" != "$out" ]; then
 fi
 echo "PAD-TEST: restarting node 10 and waiting synch"
 java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name10 &>log/name10.txt  &
-sleep 13
+sleep 14
 out=$(java -jar ../target/pad-0.0.1-SNAPSHOT.jar finished //localhost:2000 pad)
 expected="PAD-CLIENT: deleting completed true"
 echo $out

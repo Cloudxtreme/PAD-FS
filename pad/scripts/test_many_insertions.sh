@@ -2,6 +2,11 @@
 # Author: Dario Balinzo
 # Testing many insertion
 
+
+#killing all matching process (already running instance are closed)
+pkill -f pad-0.0.1-SNAPSHOT 
+
+
 #deploy a filesystem made up by 10 nodes, clean the old storages if present
 echo "PAD-TEST: cleaning folders and starting nodes"
 for i in {1..10}
@@ -12,7 +17,7 @@ done
 
 #wait for ending of setup
 echo "PAD-TEST: waiting nodes startup"
-sleep 3 
+sleep 5 
 
 #using the file system without fault
 echo "PAD-TEST: using the file system  (putting stuff) without fault"
@@ -22,7 +27,8 @@ do
 	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2006 pippo$i asd$i
 	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2008 abc$i asd$i
 done
-sleep 15
+echo "waiting synch.........."
+sleep 16
 
 #to create a network partition  A=[1,2,3] vs B=[4,5,6,7,8,9,10]
 # first A is execute with B stopped
@@ -46,7 +52,8 @@ for i in {1..11}
 do
 	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2001 pad$i asd
 done
-sleep 15
+echo "waiting synch.........."
+sleep 16
 
 echo "PAD-TEST: simulating partition A=[1,2,3] stopped, B=[4,5,6,7,8,9,10] can go"
 pkill -f pad-0.0.1-SNAPSHOT 
@@ -57,13 +64,14 @@ java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name7 &>log/_name7.txt 
 java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name8 &>log/_name8.txt  &
 java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name9 &>log/_name9.txt  &
 java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name10 &>log/_name10.txt  &
-sleep 4
+echo "waiting startup.........."
+sleep 6
 
 for i in {1..11}
 do
 	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2008 abc$i asd
 done
-sleep 15
+sleep 16
 #killing all matching process
 pkill -f pad-0.0.1-SNAPSHOT 
 
