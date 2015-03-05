@@ -3,12 +3,20 @@ package mcsn.pad;
 
 public class DaemonThread extends Thread {
 	
-	Daemon d;
-	boolean background;
+	private Daemon d;
+	private boolean background;
+	private int sec;
 	
-	public DaemonThread(Daemon _d, boolean _background) {
+	public DaemonThread(Daemon _d) {
 		d=_d;
-		background=_background;
+		background=false;
+		sec=10;
+	}
+	
+	public DaemonThread(Daemon _d, int _sec) {
+		d=_d;
+		background=true;
+		sec=_sec;
 	}
 	
 	public void run() {
@@ -22,7 +30,7 @@ public class DaemonThread extends Thread {
        try {
     	   while (background) {
     		   System.out.println("PAD-FS: DEAMON THREAD SLEEPING");
-    		   Thread.sleep(10000);
+    		   Thread.sleep(sec*1000);
     		   System.out.println("PAD-FS: DEAMON IS PROCESSING");
     		   d.FetchProcessing();
     	   }

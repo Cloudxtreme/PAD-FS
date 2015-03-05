@@ -55,7 +55,7 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 		
 		try {
 			s.writeProcessing(key, value); //can overwrite but it is ok!
-			new DaemonThread(d, false).start();
+			new DaemonThread(d).start();
 		} catch (IOException e) {
 			throw new RemoteException("cannot write into processing");
 		}
@@ -70,7 +70,7 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 		
 		try {
 			s.writeProcessing(key+".deleting", "delete"); 
-			new DaemonThread(d, false).start();
+			new DaemonThread(d).start();
 		} catch (IOException e) {
 			throw new RemoteException("cannot write into processing");
 		}

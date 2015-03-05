@@ -10,7 +10,9 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.Hashtable;
 
-import mcsn.pad.rmi.*;
+import mcsn.pad.rmi.Node2Node;
+import mcsn.pad.rmi.RemoteFS;
+import mcsn.pad.rmi.RemoteNode2Node;
 import mcsn.pad.storage.*;
 
 import org.junit.Test;

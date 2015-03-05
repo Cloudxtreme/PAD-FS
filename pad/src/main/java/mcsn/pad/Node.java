@@ -14,6 +14,7 @@ import java.util.Hashtable;
 
 
 
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -123,11 +124,17 @@ public class Node {
     	
     	MyName=args[1];
     	configFilePath=args[0];
+    	int retry_every;
+    	
+    	if (args.length == 3)
+    		retry_every=Integer.parseInt(args[2]);
+    	else
+    		retry_every=10;
     	
     	try {
     		Node node= new Node();
     		node.StartUp(MyName, configFilePath);
-    		node.setupRMI();
+    		node.setupRMI(retry_every);
     		
     		
     		
@@ -168,7 +175,7 @@ public class Node {
 	}
 
 
-	public void setupRMI() throws RemoteException, MalformedURLException {
+	public void setupRMI(int every) throws RemoteException, MalformedURLException {
     	String myUrl=MySettings[0];
 		int port= Integer.parseInt(myUrl.substring(myUrl.indexOf(':') + 1, myUrl.length()));
 		System.out.println("PAD-FS: trying to create the registry");
@@ -228,7 +235,7 @@ public class Node {
        
         
         
-		new DaemonThread(d, true).start(); 
+		new DaemonThread(d, every).start(); 
 
     }
 	
