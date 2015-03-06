@@ -21,7 +21,7 @@ sleep 5
 
 #using the file system without fault
 echo "PAD-TEST: using the file system  (putting stuff) without fault"
-for i in {1..11}
+for i in {1..101}
 do
 	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2001 pad$i asd$i
 	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2006 pippo$i asd$i
@@ -48,7 +48,7 @@ pkill -f name10
 
 echo "PAD-TEST: insertion"
 
-for i in {1..11}
+for i in {1..101}
 do
 	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2001 pad$i asd
 done
@@ -67,7 +67,7 @@ java -jar ../target/pad-0.0.1-SNAPSHOT.jar ../config.xml name10 &>log/_name10.tx
 echo "waiting startup.........."
 sleep 6
 
-for i in {1..11}
+for i in {1..101}
 do
 	java -jar ../target/pad-0.0.1-SNAPSHOT.jar put //localhost:2008 abc$i asd
 done
@@ -84,7 +84,7 @@ done
 echo "PAD-TEST: waiting synch"
 sleep 20
 
-for i in {1..11}
+for i in {1..101}
 do
 	out=$(java -jar ../target/pad-0.0.1-SNAPSHOT.jar get //localhost:2007 pad$i )
 	expected="PAD-CLIENT: get pad"$i" = asd"
