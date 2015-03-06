@@ -41,7 +41,7 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 		myid=_myid;
 		s=_s;
 		peers=p;
-		cacheN2N=_n2n; //FIXME if is used only here, it is useless to pass as argument into constructor
+		cacheN2N=_n2n; 
 		myN2N=cacheN2N.get(myid);
 		
 	}
@@ -95,7 +95,7 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 			System.out.println("PAD-FS: FS.get: return "+ output.length + " values for " + key);
 			return output;
 		} else {
-			//error!!!
+			
 			for (int i=hash; i!= (hash+k +1) %n; i=(i+1) %n ) {
 				System.out.println("PAD-FS: FS.get: trying to ask to "+ i + " responsable for " + key);
 				Node2Node remote=cacheN2N.get(i);
