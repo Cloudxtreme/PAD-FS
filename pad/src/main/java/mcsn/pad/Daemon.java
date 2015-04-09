@@ -78,7 +78,9 @@ public class Daemon {
 		String onlyName= filename.substring(0, filename.indexOf('.'));
 		boolean synch_all=true;
 		final int hash = Utility.getHash(onlyName, n);
-		for (int i=hash; i!=(hash+k+1)%n; i=(i+1) %n ) {
+		boolean first_time=true;
+		for (int i=hash; (i!=(hash+k+1)%n) || first_time; i=(i+1) %n ) {
+			first_time=false;
 			
 			if (i == myid ) {
 				
@@ -208,7 +210,9 @@ public class Daemon {
 		
 			//ask to all node that can store the object
 			boolean synch_all=true;
-			for (int i=hash; i!=(hash+k+1)%n; i=(i+1) %n ) {
+			boolean first_time=true;
+			for (int i=hash; i!=((hash+k+1)%n) || first_time; i=(i+1) %n ) {
+				first_time=false;
 				if (i != myid) {
 					Node2Node remote=cacheN2N.get(i); 
 					// i will  try to ask find the info in my node 

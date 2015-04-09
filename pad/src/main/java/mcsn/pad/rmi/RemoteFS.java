@@ -95,8 +95,9 @@ public class RemoteFS extends UnicastRemoteObject implements FS {
 			System.out.println("PAD-FS: FS.get: return "+ output.length + " values for " + key);
 			return output;
 		} else {
-			
-			for (int i=hash; i!= (hash+k +1) %n; i=(i+1) %n ) {
+			boolean first_time=true;
+			for (int i=hash; (i!= (hash+k +1) %n) || first_time; i=(i+1) %n ) {
+				first_time=false;
 				System.out.println("PAD-FS: FS.get: trying to ask to "+ i + " responsable for " + key);
 				Node2Node remote=cacheN2N.get(i);
 				Pair[] found;
